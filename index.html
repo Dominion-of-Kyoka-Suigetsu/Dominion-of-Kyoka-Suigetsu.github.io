@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dominion of Kyōka Suigetsu</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: black;
+  color: white;
+  overflow-x: hidden;
+}
+
+/* GLOW BACKGROUND */
+body::before {
+  content: "";
+  position: fixed;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(168,85,247,0.2), black 70%);
+  animation: rotate 20s linear infinite;
+  z-index: -1;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* NAVBAR */
+nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 40px;
+  background: rgba(0,0,0,0.7);
+  position: sticky;
+  top: 0;
+}
+
+nav h1 {
+  color: #a855f7;
+}
+
+nav a {
+  color: white;
+  margin-left: 20px;
+  text-decoration: none;
+}
+
+/* HERO */
+.hero {
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 2s ease;
+}
+
+.hero h2 {
+  font-size: 3rem;
+  color: #c084fc;
+  text-shadow: 0 0 20px purple;
+}
+
+.hero p {
+  opacity: 0.7;
+}
+
+.btn {
+  margin-top: 20px;
+  padding: 12px 25px;
+  border: none;
+  background: purple;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 0 20px purple;
+}
+
+.btn:hover {
+  transform: scale(1.1);
+}
+
+/* SECTIONS */
+.section {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.card {
+  background: #111;
+  padding: 20px;
+  border-radius: 10px;
+  width: 250px;
+  transition: 0.3s;
+  box-shadow: 0 0 10px #000;
+}
+
+.card:hover {
+  transform: translateY(-10px) scale(1.05);
+  box-shadow: 0 0 25px purple;
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 20px;
+  opacity: 0.5;
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+  <h1>HŌGYOKU SYNDICATE</h1>
+  <div>
+    <a href="#">Home</a>
+    <a href="#">Divisions</a>
+    <a href="#">Join</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <h2>Transcend Limits</h2>
+  <p>Power. Control. Evolution. Dominate the seas.</p>
+  <button class="btn" onclick="join()">Join Crew</button>
+</section>
+
+<section class="section">
+  <h2>Divisions</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Division 1</h3>
+      <p>20M+ Elites</p>
+    </div>
+    <div class="card">
+      <h3>Division 2</h3>
+      <p>10M+ Warriors</p>
+    </div>
+    <div class="card">
+      <h3>Division 3</h3>
+      <p>New Recruits</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Why Join?</h2>
+  <div class="cards">
+    <div class="card">⚔ Active PvP</div>
+    <div class="card">🔥 Strong Team</div>
+    <div class="card">👑 Aizen Leadership</div>
+  </div>
+</section>
+
+<footer>
+  © 2026 Hōgyoku Syndicate
+</footer>
+
+<script>
+function join() {
+  window.location.href = "https://discord.gg/YOUR_LINK";
+}
+</script>
+
+</body>
+</html>
