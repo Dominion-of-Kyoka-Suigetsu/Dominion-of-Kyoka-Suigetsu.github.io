@@ -13,14 +13,14 @@
   :root {
     --purple-deep: #1a0a2e;
     --purple-mid: #3b1a6e;
-    --purple-bright: #a855f7;
-    --purple-pale: #c084fc;
-    --purple-glow: rgba(168,85,247,0.4);
-    --gold: #c9a96e;
-    --gold-pale: #e8d5b0;
-    --white: #f0ebff;
-    --white-dim: rgba(240,235,255,0.6);
-    --white-faint: rgba(240,235,255,0.15);
+    --purple-bright: #b96ef9;
+    --purple-pale: #d8a4ff;
+    --purple-glow: rgba(185,110,249,0.5);
+    --gold: #e2c080;
+    --gold-pale: #f0ddb8;
+    --white: #ffffff;
+    --white-dim: rgba(255,255,255,0.82);
+    --white-faint: rgba(255,255,255,0.22);
   }
 
   html { scroll-behavior: smooth; }
@@ -37,13 +37,13 @@
   #intro {
     position: fixed; inset: 0; background: #000; z-index: 9999;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    animation: introExit 0.8s ease 4.4s forwards;
+    animation: introExit 1s ease 8s forwards;
   }
   @keyframes introExit { to { opacity: 0; pointer-events: none; } }
 
   #intro-bg {
     position: absolute; inset: 0;
-    background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(88,28,135,0.5) 0%, #000 70%);
+    background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(88,28,135,0.6) 0%, #000 70%);
     animation: breathe 3s ease-in-out infinite;
   }
   @keyframes breathe { 0%,100%{opacity:0.4} 50%{opacity:1} }
@@ -51,7 +51,7 @@
   #shard-container { position: absolute; inset: 0; overflow: hidden; }
   .shard {
     position: absolute; width: 1px;
-    background: linear-gradient(to top, transparent, rgba(192,132,252,0.9), transparent);
+    background: linear-gradient(to top, transparent, rgba(216,164,255,0.9), transparent);
     animation: shardRise linear infinite;
   }
   @keyframes shardRise {
@@ -59,6 +59,90 @@
     10% { opacity: 1; }
     90% { opacity: 0.8; }
     to { transform: translateY(-110vh); opacity: 0; }
+  }
+
+  /* Phase 2: ripple rings that expand outward */
+  #ripple-container { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .ripple-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(185,110,249,0.5);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%) scale(0);
+    opacity: 0;
+    animation: rippleExpand 2s ease-out forwards;
+  }
+  @keyframes rippleExpand {
+    0% { transform: translate(-50%,-50%) scale(0); opacity: 0.8; }
+    100% { transform: translate(-50%,-50%) scale(6); opacity: 0; }
+  }
+
+  /* ── PHASE 2: SWORD SLASH + SPLIT SCREEN ── */
+  #phase2 {
+    position: absolute; inset: 0; z-index: 10;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* Slash canvas — drawn via JS */
+  #slash-beam { display: none; }
+
+  /* White flash on impact */
+  #slash-flash {
+    position: absolute; inset: 0;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #split-top, #split-bot, #crack-line { display: none; }
+
+  /* Canvas for slash + particles */
+  #phase2-canvas {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    opacity: 1;
+  }
+
+  /* Crew name that fades in after particles settle */
+  #phase2-name {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    opacity: 0;
+    z-index: 5;
+  }
+  #phase2-name h2 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 5vw, 3.5rem);
+    font-weight: 400;
+    color: #fff;
+    letter-spacing: 0.25em;
+    white-space: nowrap;
+    text-shadow:
+      0 0 20px rgba(185,110,249,1),
+      0 0 60px rgba(185,110,249,0.6),
+      0 0 120px rgba(185,110,249,0.3);
+    line-height: 1.2;
+  }
+  #phase2-name .p2-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(0.7rem, 1.5vw, 0.95rem);
+    color: var(--gold);
+    letter-spacing: 0.6em;
+    font-style: italic;
+    margin-top: 16px;
+    display: block;
+    text-shadow: 0 0 15px rgba(226,192,128,0.6);
+  }
+  #phase2-name .p2-bar {
+    display: block;
+    width: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 14px auto;
+    box-shadow: 0 0 8px var(--gold);
   }
 
   #intro-content { position: relative; z-index: 2; text-align: center; }
@@ -80,23 +164,23 @@
     display: flex; align-items: center; justify-content: center;
     transform: scaleY(0);
     animation: eyeOpen 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.9s forwards;
-    box-shadow: 0 0 40px var(--purple-glow), inset 0 0 25px rgba(168,85,247,0.2);
+    box-shadow: 0 0 40px var(--purple-glow), inset 0 0 25px rgba(185,110,249,0.2);
     position: relative;
   }
   @keyframes eyeOpen { to { transform: scaleY(1); } }
 
   .intro-pupil {
     width: 44px; height: 44px;
-    background: radial-gradient(circle at 40% 40%, #c084fc, #581c87 60%, #000);
+    background: radial-gradient(circle at 40% 40%, #d8a4ff, #581c87 60%, #000);
     border-radius: 50%;
     animation: pupilPulse 2s ease infinite;
     box-shadow: 0 0 20px var(--purple-bright);
   }
-  @keyframes pupilPulse { 0%,100%{box-shadow:0 0 15px #a855f7} 50%{box-shadow:0 0 50px #c084fc, 0 0 80px #a855f7} }
+  @keyframes pupilPulse { 0%,100%{box-shadow:0 0 15px #b96ef9} 50%{box-shadow:0 0 50px #d8a4ff, 0 0 80px #b96ef9} }
 
   .intro-iris-ring {
     position: absolute; width: 60px; height: 60px;
-    border: 1px solid rgba(192,132,252,0.4);
+    border: 1px solid rgba(216,164,255,0.4);
     border-radius: 50%;
     animation: irisRotate 4s linear infinite;
   }
@@ -108,14 +192,14 @@
     color: var(--purple-pale);
     letter-spacing: 0.4em;
     font-weight: 300;
-    text-shadow: 0 0 30px var(--purple-bright), 0 0 60px rgba(168,85,247,0.4);
+    text-shadow: 0 0 30px var(--purple-bright), 0 0 60px rgba(185,110,249,0.4);
     animation: titleReveal 1.2s ease 1.6s both;
   }
   @keyframes titleReveal { from{opacity:0;letter-spacing:1.2em} to{opacity:1;letter-spacing:0.4em} }
 
   .intro-kanji {
     font-size: 0.9rem;
-    color: rgba(192,132,252,0.5);
+    color: rgba(216,164,255,0.7);
     letter-spacing: 0.8em;
     margin-top: 12px;
     animation: fadeUp 1s ease 2.6s both;
@@ -124,7 +208,7 @@
 
   .intro-tagline {
     font-size: 0.7rem;
-    color: rgba(192,132,252,0.4);
+    color: rgba(216,164,255,0.55);
     letter-spacing: 0.5em;
     text-transform: uppercase;
     margin-top: 8px;
@@ -149,9 +233,9 @@
     position: absolute; border-radius: 50%; filter: blur(80px);
     animation: orbDrift ease-in-out infinite;
   }
-  .orb-1 { width:500px;height:500px;background:rgba(88,28,135,0.18);top:-100px;left:-100px;animation-duration:18s; }
-  .orb-2 { width:400px;height:400px;background:rgba(168,85,247,0.1);bottom:-50px;right:-50px;animation-duration:22s;animation-delay:-8s; }
-  .orb-3 { width:300px;height:300px;background:rgba(192,132,252,0.07);top:50%;left:50%;transform:translate(-50%,-50%);animation-duration:15s;animation-delay:-5s; }
+  .orb-1 { width:500px;height:500px;background:rgba(88,28,135,0.28);top:-100px;left:-100px;animation-duration:18s; }
+  .orb-2 { width:400px;height:400px;background:rgba(168,85,247,0.18);bottom:-50px;right:-50px;animation-duration:22s;animation-delay:-8s; }
+  .orb-3 { width:300px;height:300px;background:rgba(216,164,255,0.12);top:50%;left:50%;transform:translate(-50%,-50%);animation-duration:15s;animation-delay:-5s; }
   @keyframes orbDrift { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-40px) scale(1.1)} }
 
   #particles-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
@@ -187,7 +271,7 @@
     text-shadow: 0 0 15px rgba(168,85,247,0.5);
   }
   .nav-links a {
-    color: rgba(240,235,255,0.55);
+    color: rgba(255,255,255,0.75);
     margin-left: 30px;
     text-decoration: none;
     font-family: 'Cinzel', serif;
@@ -205,7 +289,7 @@
     position: relative; z-index: 1;
     text-align: center;
     padding: 40px 20px;
-    animation: heroReveal 1s ease 4.8s both;
+    animation: heroReveal 1s ease 8.8s both;
   }
   @keyframes heroReveal { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 
@@ -240,7 +324,7 @@
 
   .hero-subtitle-jp {
     font-size: clamp(0.8rem, 2vw, 1.1rem);
-    color: rgba(192,132,252,0.5);
+    color: rgba(216,164,255,0.8);
     letter-spacing: 0.5em;
     font-style: italic;
     margin-bottom: 25px;
@@ -385,7 +469,7 @@
   }
   .div-power {
     font-size: 0.8rem;
-    color: rgba(192,132,252,0.55);
+    color: rgba(216,164,255,0.85);
     letter-spacing: 0.1em;
     font-style: italic;
   }
@@ -418,7 +502,7 @@
     font-family: 'Cinzel', serif;
     font-size: 0.7rem;
     letter-spacing: 0.25em;
-    color: var(--white-dim);
+    color: rgba(255,255,255,0.85);
     text-transform: uppercase;
   }
 
@@ -458,13 +542,13 @@
     font-family: 'Cinzel', serif;
     font-size: 0.7rem;
     letter-spacing: 0.2em;
-    color: rgba(192,132,252,0.3);
+    color: rgba(216,164,255,0.6);
   }
   .footer-copy {
     font-family: 'Cinzel', serif;
     font-size: 0.65rem;
     letter-spacing: 0.2em;
-    color: rgba(192,132,252,0.2);
+    color: rgba(216,164,255,0.4);
   }
 
   /* ── RESPONSIVE ── */
@@ -483,16 +567,28 @@
 <div id="intro">
   <div id="intro-bg"></div>
   <div id="shard-container"></div>
+  <div id="ripple-container"></div>
   <div id="intro-content">
-    <div class="intro-slash"></div>
     <div class="intro-eye">
       <div class="intro-iris-ring"></div>
       <div class="intro-pupil"></div>
     </div>
-    <div class="intro-title">Kyōka Suigetsu</div>
-    <div class="intro-kanji">鏡 花 水 月</div>
-    <div class="intro-tagline">Complete Hypnosis Achieved</div>
-    <div class="intro-slash-bottom"></div>
+
+  </div>
+  <!-- Phase 2: Sword slash split + particle name assembly -->
+  <div id="phase2">
+    <div id="slash-beam"></div>
+    <div id="slash-flash"></div>
+    <div id="split-top"></div>
+    <div id="split-bot"></div>
+    <div id="crack-line"></div>
+    <canvas id="phase2-canvas"></canvas>
+    <div id="phase2-name">
+      <span class="p2-bar" id="bar-top"></span>
+      <h2>Dominion of<br>Kyōka Suigetsu</h2>
+      <span class="p2-bar" id="bar-bot"></span>
+      <span class="p2-sub">Power · Control · Evolution</span>
+    </div>
   </div>
 </div>
 
@@ -547,10 +643,22 @@
       <div class="div-power">10M+ Strength</div>
     </div>
     <div class="division-card">
-      <span class="div-glyph">🌑</span>
+      <span class="div-glyph">🔱</span>
       <div class="div-number">Division · III</div>
+      <div class="div-name">The Enforcers</div>
+      <div class="div-power">5M+ Seasoned</div>
+    </div>
+    <div class="division-card">
+      <span class="div-glyph">🌑</span>
+      <div class="div-number">Division · IV</div>
+      <div class="div-name">Shadow Pact</div>
+      <div class="div-power">Rising Hunters</div>
+    </div>
+    <div class="division-card">
+      <span class="div-glyph">🌀</span>
+      <div class="div-number">Division · V</div>
       <div class="div-name">New Ascendants</div>
-      <div class="div-power">Recruits Rising</div>
+      <div class="div-power">Recruits &amp; Initiates</div>
     </div>
   </div>
 </section>
@@ -592,7 +700,7 @@
 </footer>
 
 <script>
-  // Generate intro shards
+  // ── PHASE 1: Rising shards ──
   (function() {
     const c = document.getElementById('shard-container');
     for (let i = 0; i < 30; i++) {
@@ -604,13 +712,293 @@
     }
   })();
 
-  // Hide intro after animation
+  // ── PHASE 1 EXIT ──
+  setTimeout(() => {
+    const content = document.getElementById('intro-content');
+    if (content) { content.style.transition = 'opacity 0.5s ease'; content.style.opacity = '0'; }
+  }, 4400);
+
+  // ── PHASE 2 ──
+  setTimeout(() => {
+    const flash  = document.getElementById('slash-flash');
+    const canvas = document.getElementById('phase2-canvas');
+    const nameEl = document.getElementById('phase2-name');
+    const barTop = document.getElementById('bar-top');
+    const barBot = document.getElementById('bar-bot');
+    const bg     = document.getElementById('intro-bg');
+
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    canvas.width  = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // ── REAL CANVAS SWORD SLASH ──
+    // Pure white razor line — bright on impact, quick fade
+    // Direction: top-right → bottom-left
+    const SLASH_DURATION = 135; // ms
+    const slashStart = performance.now();
+
+    const sx0 = W * 1.05, sy0 = H * -0.05;
+    const sx1 = W * -0.05, sy1 = H * 1.05;
+
+    // Slash angle (perpendicular direction for particles)
+    const slashAngle = Math.atan2(sy1 - sy0, sx1 - sx0); // ~225 deg
+    const perpAngle  = slashAngle - Math.PI / 2;          // 90° from blade = outward normals
+
+    let slashDone = false;
+    const particles = [];
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+
+    function drawSlashAt(progress, alpha) {
+      // progress 0→1: blade sweeps from sx0,sy0 to sx1,sy1
+      // We show the full drawn line from start up to current tip,
+      // so it looks like a sword cutting — not a moving dot.
+      const tipX = lerp(sx0, sx1, progress);
+      const tipY = lerp(sy0, sy1, progress);
+
+      ctx.save();
+
+      // Outer soft white glow (wide, very faint) — energy shimmer
+      ctx.beginPath();
+      ctx.moveTo(sx0, sy0);
+      ctx.lineTo(tipX, tipY);
+      ctx.strokeStyle = `rgba(255,255,255,${0.08 * alpha})`;
+      ctx.lineWidth = 40;
+      ctx.lineCap = 'round';
+      ctx.filter = 'blur(12px)';
+      ctx.stroke();
+
+      // Inner glow — narrow white halo
+      ctx.beginPath();
+      ctx.moveTo(sx0, sy0);
+      ctx.lineTo(tipX, tipY);
+      ctx.strokeStyle = `rgba(255,255,255,${0.35 * alpha})`;
+      ctx.lineWidth = 6;
+      ctx.filter = 'blur(3px)';
+      ctx.stroke();
+
+      // Hard white razor core — the actual blade
+      ctx.beginPath();
+      ctx.moveTo(sx0, sy0);
+      ctx.lineTo(tipX, tipY);
+      ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+      ctx.lineWidth = 1.5;
+      ctx.filter = 'none';
+      ctx.stroke();
+
+      // Bright tip point — leading edge spark
+      const tipGrad = ctx.createRadialGradient(tipX, tipY, 0, tipX, tipY, 18);
+      tipGrad.addColorStop(0, `rgba(255,255,255,${alpha})`);
+      tipGrad.addColorStop(0.5, `rgba(220,200,255,${0.5 * alpha})`);
+      tipGrad.addColorStop(1, `rgba(255,255,255,0)`);
+      ctx.beginPath();
+      ctx.arc(tipX, tipY, 18, 0, Math.PI * 2);
+      ctx.fillStyle = tipGrad;
+      ctx.filter = 'blur(1px)';
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // Slash fade-out state
+    let slashAlpha = 1;
+    let slashProgress = 0;
+
+    function slashTick(now) {
+      const elapsed = now - slashStart;
+      slashProgress = Math.min(elapsed / SLASH_DURATION, 1);
+
+      ctx.clearRect(0, 0, W, H);
+      drawSlashAt(slashProgress, slashAlpha);
+
+      if (slashProgress < 1) {
+        requestAnimationFrame(slashTick);
+      } else {
+        slashDone = true;
+        // Quickly fade the slash out after complete
+        function fadeTick(now2) {
+          ctx.clearRect(0, 0, W, H);
+          slashAlpha -= 0.07; // fast fade
+          if (slashAlpha > 0) {
+            drawSlashAt(1, slashAlpha);
+            requestAnimationFrame(fadeTick);
+          } else {
+            ctx.clearRect(0, 0, W, H);
+          }
+        }
+        requestAnimationFrame(fadeTick);
+      }
+    }
+    requestAnimationFrame(slashTick);
+
+    // Flash on slash completion
+    setTimeout(() => {
+      flash.style.transition = 'opacity 0.04s ease';
+      flash.style.opacity = '0.7';
+      setTimeout(() => { flash.style.transition = 'opacity 0.35s ease'; flash.style.opacity = '0'; }, 45);
+    }, SLASH_DURATION + 10);
+
+    // Fire particles along the blade line
+    setTimeout(() => {
+      fireParticleBurst();
+    }, SLASH_DURATION + 80);
+
+    // ── PARTICLES: spawned all along the slash line, shoot perpendicular ──
+    function fireParticleBurst() {
+      canvas.width  = W;
+      canvas.height = H;
+
+      // Perpendicular vectors (both sides of the blade)
+      const pxPos =  Math.cos(perpAngle); // "above" slash
+      const pyPos =  Math.sin(perpAngle);
+      const pxNeg = -pxPos;               // "below" slash
+      const pyNeg = -pyPos;
+
+      // Sample N points evenly along the blade, spawn particles at each
+      const BLADE_POINTS = 80;   // sample points along blade
+      const PER_POINT    = 9;    // particles per point
+
+      for (let b = 0; b < BLADE_POINTS; b++) {
+        const t   = b / (BLADE_POINTS - 1);
+        const bx  = lerp(sx0, sx1, t);
+        const by  = lerp(sy0, sy1, t);
+
+        for (let p = 0; p < PER_POINT; p++) {
+          // Shoot perpendicular to blade — half each side
+          const side    = p % 2 === 0 ? 1 : -1;
+          const spread  = (Math.random() - 0.5) * 0.55; // slight angular spread
+          const baseAng = perpAngle + side * Math.PI / 2 + spread;
+          const speed   = Math.random() * 22 + 10;
+          const size    = Math.random() < 0.25 ? Math.random() * 3 + 1.5 : Math.random() * 1.5 + 0.5;
+          const rv      = Math.random();
+          const hue     = rv < 0.45 ? [255,255,255] :
+                          rv < 0.75 ? [185,110,249] :
+                                      [216,164,255];
+
+          particles.push({
+            x: bx + (Math.random() - 0.5) * 4,
+            y: by + (Math.random() - 0.5) * 4,
+            vx: Math.cos(baseAng) * speed,
+            vy: Math.sin(baseAng) * speed,
+            size, hue,
+            alpha: 1,
+            life: 1,
+            decay: Math.random() * 0.008 + 0.004,
+            trail: []
+          });
+        }
+      }
+
+      // Gold sparks — same blade-line origin, bit faster
+      for (let b = 0; b < 40; b++) {
+        const t  = Math.random();
+        const bx = lerp(sx0, sx1, t);
+        const by = lerp(sy0, sy1, t);
+        const side   = Math.random() < 0.5 ? 1 : -1;
+        const spread = (Math.random() - 0.5) * 0.4;
+        const ang    = perpAngle + side * Math.PI / 2 + spread;
+        const speed  = Math.random() * 30 + 15;
+
+        particles.push({
+          x: bx, y: by,
+          vx: Math.cos(ang) * speed,
+          vy: Math.sin(ang) * speed,
+          size: Math.random() * 1.2 + 0.4,
+          hue: [226,192,128],
+          alpha: 1, life: 1,
+          decay: Math.random() * 0.006 + 0.003,
+          trail: []
+        });
+      }
+
+      function particleTick() {
+        ctx.clearRect(0, 0, W, H);
+        let alive = 0;
+
+        for (const p of particles) {
+          if (p.life <= 0) continue;
+          alive++;
+
+          p.trail.push({ x: p.x, y: p.y });
+          if (p.trail.length > 10) p.trail.shift();
+
+          // Streak trail
+          if (p.trail.length > 1) {
+            for (let t = 0; t < p.trail.length - 1; t++) {
+              const frac = t / p.trail.length;
+              ctx.beginPath();
+              ctx.strokeStyle = `rgba(${p.hue[0]},${p.hue[1]},${p.hue[2]},${frac * p.alpha * 0.5})`;
+              ctx.lineWidth = p.size * frac;
+              ctx.moveTo(p.trail[t].x, p.trail[t].y);
+              ctx.lineTo(p.trail[t+1].x, p.trail[t+1].y);
+              ctx.stroke();
+            }
+          }
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${p.hue[0]},${p.hue[1]},${p.hue[2]},${p.alpha})`;
+          ctx.shadowBlur = 14;
+          ctx.shadowColor = `rgba(${p.hue[0]},${p.hue[1]},${p.hue[2]},0.9)`;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // No gravity — pure linear
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life -= p.decay;
+          p.alpha = Math.max(0, p.life);
+        }
+
+        if (alive > 0) requestAnimationFrame(particleTick);
+        else { canvas.style.transition = 'opacity 0.4s ease'; canvas.style.opacity = '0'; }
+      }
+      requestAnimationFrame(particleTick);
+
+      // Name reveal after burst fires
+      setTimeout(() => revealName(nameEl, barTop, barBot), 600);
+    }
+
+    function revealName(nameEl, barTop, barBot) {
+      nameEl.style.opacity = '1';
+      barTop.style.transition = 'width 0.55s ease';
+      barTop.style.width = '260px';
+      setTimeout(() => {
+        barBot.style.transition = 'width 0.55s ease';
+        barBot.style.width = '260px';
+      }, 160);
+
+      const h2 = nameEl.querySelector('h2');
+      h2.style.opacity = '0';
+      h2.style.filter = 'blur(10px)';
+      let flicks = 0;
+      const flicker = setInterval(() => {
+        h2.style.transition = 'opacity 0.04s, filter 0.5s ease';
+        h2.style.opacity = flicks % 2 === 0 ? '1' : '0.05';
+        h2.style.filter = flicks % 2 === 0 ? 'blur(0px)' : 'blur(6px)';
+        flicks++;
+        if (flicks >= 7) { clearInterval(flicker); h2.style.opacity = '1'; h2.style.filter = 'blur(0)'; }
+      }, 70);
+
+      const sub = nameEl.querySelector('.p2-sub');
+      sub.style.opacity = '0'; sub.style.transform = 'translateY(12px)';
+      setTimeout(() => {
+        sub.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+        sub.style.opacity = '1'; sub.style.transform = 'translateY(0)';
+      }, 750);
+    }
+
+  }, 4900);
+
+  // ── HIDE INTRO ──
   setTimeout(() => {
     const intro = document.getElementById('intro');
-    if (intro) intro.style.display = 'none';
-  }, 5300);
+    if (intro) { intro.style.transition = 'opacity 0.8s ease'; intro.style.opacity = '0'; setTimeout(() => { intro.style.display = 'none'; }, 800); }
+  }, 9000);
 
-  // Generate ambient particles
+  // ── AMBIENT PARTICLES ──
   (function() {
     const pc = document.getElementById('particles-bg');
     for (let i = 0; i < 50; i++) {
