@@ -8,590 +8,355 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-  :root {
-    --purple-deep: #1a0a2e;
-    --purple-mid: #3b1a6e;
-    --purple-bright: #b96ef9;
-    --purple-pale: #d8a4ff;
-    --purple-glow: rgba(185,110,249,0.5);
-    --gold: #e2c080;
-    --gold-pale: #f0ddb8;
-    --white: #ffffff;
-    --white-dim: rgba(255,255,255,0.82);
-    --white-faint: rgba(255,255,255,0.22);
-  }
+:root {
+  --purple-bright: #b96ef9;
+  --purple-pale:   #d8a4ff;
+  --purple-glow:   rgba(185,110,249,0.5);
+  --gold:          #e2c080;
+  --white:         #ffffff;
+  --white-dim:     rgba(255,255,255,0.82);
+}
 
-  html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; }
 
-  /* Cursor fix — never show crosshair text cursor */
-  body {
-    font-family: 'Cormorant Garamond', serif;
-    background: #000;
-    color: var(--white);
-    overflow-x: hidden;
-    cursor: default;
-    user-select: none;
-  }
+body {
+  font-family: 'Cormorant Garamond', serif;
+  background: #000;
+  color: var(--white);
+  overflow-x: hidden;
+  cursor: default;
+  user-select: none;
+}
+body.intro-active { overflow: hidden; }
+body.intro-done   { overflow: auto; user-select: auto; }
 
-  /* Lock scroll during intro */
-  body.intro-active {
-    overflow: hidden;
-  }
-  body.intro-done {
-    overflow: auto;
-    user-select: auto;
-  }
+/* ─────────────────── INTRO ─────────────────── */
+#intro {
+  position: fixed; inset: 0; background: #000;
+  z-index: 9999; display: flex;
+  flex-direction: column; align-items: center; justify-content: center;
+}
+#intro-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(88,28,135,0.6) 0%, #000 70%);
+  animation: breathe 3s ease-in-out infinite;
+}
+@keyframes breathe { 0%,100%{opacity:0.4} 50%{opacity:1} }
 
-  /* ── INTRO OVERLAY ── */
-  #intro {
-    position: fixed; inset: 0; background: #000; z-index: 9999;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    cursor: default;
-  }
+#shard-container { position:absolute; inset:0; overflow:hidden; }
+.shard {
+  position:absolute; width:1px;
+  background:linear-gradient(to top, transparent, rgba(216,164,255,0.9), transparent);
+  animation: shardRise linear infinite;
+}
+@keyframes shardRise {
+  from { transform:translateY(110vh); opacity:0; }
+  10%  { opacity:1; }
+  90%  { opacity:0.8; }
+  to   { transform:translateY(-110vh); opacity:0; }
+}
 
-  #intro-bg {
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(88,28,135,0.6) 0%, #000 70%);
-    animation: breathe 3s ease-in-out infinite;
-  }
-  @keyframes breathe { 0%,100%{opacity:0.4} 50%{opacity:1} }
+/* Phase 2 wrapper */
+#phase2 { position:absolute; inset:0; z-index:10; pointer-events:none; overflow:hidden; }
+#slash-flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; }
+#crack-canvas  { position:absolute; inset:0; width:100%; height:100%; z-index:1; }
+#phase2-canvas { position:absolute; inset:0; width:100%; height:100%; z-index:2; }
 
-  #shard-container { position: absolute; inset: 0; overflow: hidden; }
-  .shard {
-    position: absolute; width: 1px;
-    background: linear-gradient(to top, transparent, rgba(216,164,255,0.9), transparent);
-    animation: shardRise linear infinite;
-  }
-  @keyframes shardRise {
-    from { transform: translateY(110vh); opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 0.8; }
-    to { transform: translateY(-110vh); opacity: 0; }
-  }
+#phase2-name {
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center; opacity:0; z-index:5; white-space:nowrap;
+}
+#phase2-name h2 {
+  font-family:'Cinzel',serif;
+  font-size:clamp(1.4rem,5vw,3.5rem);
+  font-weight:400; color:#fff;
+  letter-spacing:0.25em; white-space:nowrap;
+  text-shadow:0 0 20px rgba(185,110,249,1),0 0 60px rgba(185,110,249,0.6),0 0 120px rgba(185,110,249,0.3);
+  line-height:1.2;
+}
+#phase2-name .p2-sub {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(0.7rem,1.5vw,0.95rem);
+  color:var(--gold); letter-spacing:0.6em;
+  font-style:italic; margin-top:16px; display:block;
+  text-shadow:0 0 15px rgba(226,192,128,0.6);
+}
+#phase2-name .p2-bar {
+  display:block; width:0; height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  margin:14px auto; box-shadow:0 0 8px var(--gold);
+}
 
-  #ripple-container { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+/* Intro content / eye */
+#intro-content { position:relative; z-index:2; text-align:center; }
 
-  /* ── PHASE 2 wrapper ── */
-  #phase2 {
-    position: absolute; inset: 0; z-index: 10;
-    pointer-events: none;
-    overflow: hidden;
-  }
+.intro-eye {
+  width:130px; height:65px;
+  border:1.5px solid var(--purple-pale);
+  border-radius:50%;
+  margin:0 auto;
+  display:flex; align-items:center; justify-content:center;
+  transform:scaleY(0);
+  animation:eyeOpen 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.9s forwards;
+  box-shadow:0 0 40px var(--purple-glow), inset 0 0 25px rgba(185,110,249,0.2);
+  position:relative; overflow:hidden;
+}
+@keyframes eyeOpen { to { transform:scaleY(1); } }
 
-  #slash-beam { display: none; }
+.intro-pupil {
+  width:44px; height:44px;
+  background:radial-gradient(circle at 40% 40%, #d8a4ff, #581c87 60%, #000);
+  border-radius:50%;
+  position:relative; z-index:2;
+  transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  animation:pupilPulse 2s ease infinite;
+  box-shadow:0 0 20px var(--purple-bright);
+}
+@keyframes pupilPulse {
+  0%,100% { box-shadow:0 0 15px #b96ef9; }
+  50%     { box-shadow:0 0 50px #d8a4ff, 0 0 80px #b96ef9; }
+}
 
-  #slash-flash {
-    position: absolute; inset: 0;
-    background: #fff;
-    opacity: 0;
-    pointer-events: none;
-  }
+.intro-iris-ring {
+  position:absolute; width:60px; height:60px;
+  border:1px solid rgba(216,164,255,0.4);
+  border-radius:50%;
+  animation:irisRotate 4s linear infinite;
+}
+@keyframes irisRotate { to { transform:rotate(360deg); } }
 
-  #split-top, #split-bot, #crack-line { display: none; }
+.intro-lid-top, .intro-lid-bot {
+  position:absolute; left:-4px; right:-4px;
+  background:#000; z-index:3; height:0;
+  transition:height 0.32s cubic-bezier(0.4,0,0.2,1);
+}
+.intro-lid-top { top:-4px; }
+.intro-lid-bot { bottom:-4px; }
 
-  #phase2-canvas {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    opacity: 1;
-  }
+/* ─────────────────── AMBIENT ─────────────────── */
+#ambient { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.ambient-orb { position:absolute; border-radius:50%; filter:blur(80px); animation:orbDrift ease-in-out infinite; }
+.orb-1 { width:500px;height:500px;background:rgba(88,28,135,0.28);top:-100px;left:-100px;animation-duration:18s; }
+.orb-2 { width:400px;height:400px;background:rgba(168,85,247,0.18);bottom:-50px;right:-50px;animation-duration:22s;animation-delay:-8s; }
+.orb-3 { width:300px;height:300px;background:rgba(216,164,255,0.12);top:50%;left:50%;transform:translate(-50%,-50%);animation-duration:15s;animation-delay:-5s; }
+@keyframes orbDrift { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-40px) scale(1.1)} }
 
-  #phase2-name {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    opacity: 0;
-    z-index: 5;
-    white-space: nowrap;
-  }
-  #phase2-name h2 {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(1.4rem, 5vw, 3.5rem);
-    font-weight: 400;
-    color: #fff;
-    letter-spacing: 0.25em;
-    white-space: nowrap;
-    text-shadow:
-      0 0 20px rgba(185,110,249,1),
-      0 0 60px rgba(185,110,249,0.6),
-      0 0 120px rgba(185,110,249,0.3);
-    line-height: 1.2;
-  }
-  #phase2-name .p2-sub {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(0.7rem, 1.5vw, 0.95rem);
-    color: var(--gold);
-    letter-spacing: 0.6em;
-    font-style: italic;
-    margin-top: 16px;
-    display: block;
-    text-shadow: 0 0 15px rgba(226,192,128,0.6);
-  }
-  #phase2-name .p2-bar {
-    display: block;
-    width: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    margin: 14px auto;
-    box-shadow: 0 0 8px var(--gold);
-  }
+#particles-bg { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.bg-p {
+  position:absolute; border-radius:50%;
+  background:var(--purple-pale);
+  animation:bgDrift linear infinite; opacity:0;
+}
+@keyframes bgDrift {
+  0%   { transform:translateY(100vh); opacity:0; }
+  5%   { opacity:0.5; }
+  95%  { opacity:0.3; }
+  100% { transform:translateY(-5vh); opacity:0; }
+}
 
-  /* ── INTRO PHASE 1 CONTENT ── */
-  #intro-content { position: relative; z-index: 2; text-align: center; }
+/* ─────────────────── NAV ─────────────────── */
+nav {
+  position:sticky; top:0; z-index:100;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:18px 50px;
+  background:rgba(0,0,0,0.75);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(168,85,247,0.15);
+}
+.nav-logo {
+  font-family:'Cinzel',serif; font-size:0.85rem;
+  color:var(--purple-pale); letter-spacing:0.15em;
+  font-weight:400; text-shadow:0 0 15px rgba(168,85,247,0.5);
+}
+.nav-links a {
+  color:rgba(255,255,255,0.75); margin-left:30px;
+  text-decoration:none; font-family:'Cinzel',serif;
+  font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase;
+  transition:color 0.3s, text-shadow 0.3s;
+}
+.nav-links a:hover { color:var(--purple-pale); text-shadow:0 0 10px var(--purple-bright); }
 
-  .intro-slash {
-    width: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--purple-pale), transparent);
-    margin: 0 auto 30px;
-    animation: slashGrow 0.5s ease 0.5s forwards;
-    box-shadow: 0 0 8px var(--purple-bright);
-  }
-  @keyframes slashGrow { to { width: 280px; } }
+/* ─────────────────── HERO ─────────────────── */
+.hero {
+  min-height:92vh;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  position:relative; z-index:1; text-align:center; padding:40px 20px;
+  animation:heroReveal 1s ease 8.8s both;
+}
+@keyframes heroReveal { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 
-  /* Eye container */
-  .intro-eye {
-    width: 130px; height: 65px;
-    border: 1.5px solid var(--purple-pale);
-    border-radius: 50%;
-    margin: 0 auto 30px;
-    display: flex; align-items: center; justify-content: center;
-    transform: scaleY(0);
-    animation: eyeOpen 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.9s forwards;
-    box-shadow: 0 0 40px var(--purple-glow), inset 0 0 25px rgba(185,110,249,0.2);
-    position: relative;
-    overflow: hidden;
-  }
-  @keyframes eyeOpen { to { transform: scaleY(1); } }
+.hero-kanji-bg {
+  position:absolute; font-size:clamp(8rem,20vw,18rem);
+  color:rgba(168,85,247,0.04);
+  font-family:serif; user-select:none; pointer-events:none;
+  animation:kanjiDrift 12s ease-in-out infinite;
+}
+@keyframes kanjiDrift {
+  0%,100% { transform:translateY(0) rotate(-3deg); opacity:0.04; }
+  50%     { transform:translateY(-15px) rotate(2deg); opacity:0.08; }
+}
+.hero-overline {
+  font-family:'Cinzel',serif; font-size:0.65rem;
+  letter-spacing:0.6em; color:var(--gold);
+  text-transform:uppercase; margin-bottom:20px; opacity:0.8;
+}
+.hero h1 {
+  font-family:'Cinzel',serif; font-size:clamp(2.5rem,8vw,5.5rem);
+  font-weight:300; color:var(--white); line-height:1.1; letter-spacing:0.1em;
+  text-shadow:0 0 40px rgba(168,85,247,0.6), 0 0 80px rgba(168,85,247,0.2);
+  margin-bottom:8px;
+}
+.hero-subtitle-jp {
+  font-size:clamp(0.8rem,2vw,1.1rem);
+  color:rgba(216,164,255,0.8); letter-spacing:0.5em;
+  font-style:italic; margin-bottom:25px;
+}
+.hero-rule {
+  width:1px; height:50px;
+  background:linear-gradient(to bottom,transparent,var(--purple-pale),transparent);
+  margin:0 auto 25px;
+}
+.hero-desc {
+  font-size:clamp(0.9rem,2vw,1.1rem); color:var(--white-dim);
+  letter-spacing:0.2em; font-style:italic;
+  margin-bottom:40px; max-width:420px;
+}
+.cta-btn {
+  display:inline-block; padding:14px 45px;
+  border:1px solid rgba(168,85,247,0.5);
+  background:rgba(168,85,247,0.08); color:var(--purple-pale);
+  text-decoration:none; font-family:'Cinzel',serif;
+  font-size:0.7rem; letter-spacing:0.35em; text-transform:uppercase;
+  transition:all 0.4s ease; position:relative; overflow:hidden; cursor:pointer;
+}
+.cta-btn::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(168,85,247,0.2),transparent);
+  transform:translateX(-100%); transition:transform 0.4s ease;
+}
+.cta-btn:hover {
+  border-color:var(--purple-pale);
+  box-shadow:0 0 30px rgba(168,85,247,0.4), 0 0 60px rgba(168,85,247,0.1);
+  transform:translateY(-2px);
+}
+.cta-btn:hover::before { transform:translateX(0); }
+.hero-scroll-hint {
+  position:absolute; bottom:30px; font-family:'Cinzel',serif;
+  font-size:0.6rem; letter-spacing:0.4em;
+  color:rgba(192,132,252,0.25); text-transform:uppercase;
+  animation:scrollPulse 2.5s ease-in-out infinite;
+}
+@keyframes scrollPulse {
+  0%,100% { opacity:0.25; transform:translateY(0); }
+  50%     { opacity:0.5;  transform:translateY(4px); }
+}
 
-  /* Pupil — JS will move it via transform */
-  .intro-pupil {
-    width: 44px; height: 44px;
-    background: radial-gradient(circle at 40% 40%, #d8a4ff, #581c87 60%, #000);
-    border-radius: 50%;
-    box-shadow: 0 0 20px var(--purple-bright);
-    position: relative;
-    z-index: 2;
-    transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
-    animation: pupilPulse 2s ease infinite;
-  }
-  @keyframes pupilPulse { 0%,100%{box-shadow:0 0 15px #b96ef9} 50%{box-shadow:0 0 50px #d8a4ff, 0 0 80px #b96ef9} }
+/* ─────────────────── SECTIONS ─────────────────── */
+.section { padding:100px 40px; position:relative; z-index:1; text-align:center; }
+.section-header { margin-bottom:60px; }
+.section-num {
+  font-family:'Cinzel',serif; font-size:0.6rem;
+  letter-spacing:0.5em; color:var(--gold); opacity:0.6; margin-bottom:12px;
+}
+.section-title {
+  font-family:'Cinzel',serif; font-size:clamp(1.2rem,3vw,1.8rem);
+  font-weight:300; letter-spacing:0.4em; color:var(--purple-pale);
+  text-transform:uppercase; text-shadow:0 0 20px rgba(168,85,247,0.3);
+}
+.section-rule {
+  width:80px; height:1px;
+  background:linear-gradient(90deg,transparent,var(--purple-bright),transparent);
+  margin:16px auto 0;
+}
 
-  .intro-iris-ring {
-    position: absolute; width: 60px; height: 60px;
-    border: 1px solid rgba(216,164,255,0.4);
-    border-radius: 50%;
-    animation: irisRotate 4s linear infinite;
-  }
-  @keyframes irisRotate { to { transform: rotate(360deg); } }
+/* Divisions */
+.divisions-grid {
+  display:flex; flex-wrap:wrap;
+  justify-content:center; gap:24px;
+  max-width:900px; margin:0 auto;
+}
+.division-card {
+  width:260px; background:rgba(10,0,20,0.7);
+  border:1px solid rgba(168,85,247,0.12);
+  padding:40px 28px; position:relative;
+  overflow:hidden; transition:all 0.4s ease; cursor:default;
+}
+.division-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,var(--purple-bright),transparent);
+  transform:scaleX(0); transition:transform 0.4s ease;
+}
+.division-card::after {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(168,85,247,0.07),transparent 70%);
+  opacity:0; transition:opacity 0.4s ease;
+}
+.division-card:hover { border-color:rgba(168,85,247,0.35); transform:translateY(-8px); box-shadow:0 20px 50px rgba(168,85,247,0.1); }
+.division-card:hover::before { transform:scaleX(1); }
+.division-card:hover::after  { opacity:1; }
+.div-glyph  { font-size:2rem; margin-bottom:16px; display:block; opacity:0.7; }
+.div-number { font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:0.5em; color:var(--gold); opacity:0.6; margin-bottom:8px; }
+.div-name   { font-family:'Cinzel',serif; font-size:1rem; font-weight:400; letter-spacing:0.2em; color:var(--white); margin-bottom:10px; }
+.div-power  { font-size:0.8rem; color:rgba(216,164,255,0.85); letter-spacing:0.1em; font-style:italic; }
 
-  /* Eye lid close — top and bottom lids that close over the eye */
-  .intro-eye-lid-top,
-  .intro-eye-lid-bot {
-    position: absolute; left: -2px; right: -2px;
-    background: #331728;
-    z-index: 3;
-    transition: height 0.35s cubic-bezier(0.4,0,0.2,1);
-    height: 0;
-  }
-  .intro-eye-lid-top { top: -2px; }
-  .intro-eye-lid-bot { bottom: -2px; }
+/* Why join */
+.why-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; max-width:800px; margin:0 auto; }
+.why-item {
+  padding:32px 28px; border:1px solid rgba(168,85,247,0.1);
+  background:rgba(10,0,20,0.5); min-width:200px; flex:1;
+  transition:all 0.3s ease; position:relative; overflow:hidden;
+}
+.why-item::before {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,var(--purple-bright),transparent);
+  transform:scaleX(0); transition:transform 0.4s ease;
+}
+.why-item:hover { border-color:rgba(168,85,247,0.3); background:rgba(20,0,35,0.7); }
+.why-item:hover::before { transform:scaleX(1); }
+.why-icon { font-size:1.4rem; margin-bottom:12px; display:block; }
+.why-text { font-family:'Cinzel',serif; font-size:0.7rem; letter-spacing:0.25em; color:rgba(255,255,255,0.85); text-transform:uppercase; }
 
-  .intro-title {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(1.2rem, 3vw, 2rem);
-    color: var(--purple-pale);
-    letter-spacing: 0.4em;
-    font-weight: 300;
-    text-shadow: 0 0 30px var(--purple-bright), 0 0 60px rgba(185,110,249,0.4);
-    animation: titleReveal 1.2s ease 1.6s both;
-  }
-  @keyframes titleReveal { from{opacity:0;letter-spacing:1.2em} to{opacity:1;letter-spacing:0.4em} }
+/* CTA */
+.cta-section { padding:120px 40px; position:relative; z-index:1; text-align:center; border-top:1px solid rgba(168,85,247,0.08); }
+.cta-section h2 { font-family:'Cinzel',serif; font-size:clamp(1.5rem,4vw,2.5rem); font-weight:300; color:var(--white); letter-spacing:0.15em; text-shadow:0 0 30px rgba(168,85,247,0.4); margin-bottom:10px; }
+.cta-section p  { font-size:1rem; color:var(--white-dim); font-style:italic; letter-spacing:0.1em; margin-bottom:40px; }
 
-  .intro-kanji {
-    font-size: 0.9rem;
-    color: rgba(216,164,255,0.7);
-    letter-spacing: 0.8em;
-    margin-top: 12px;
-    animation: fadeUp 1s ease 2.6s both;
-    font-style: italic;
-  }
+/* Footer */
+footer { padding:40px 50px; border-top:1px solid rgba(168,85,247,0.08); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; position:relative; z-index:1; }
+.footer-logo { font-family:'Cinzel',serif; font-size:0.7rem; letter-spacing:0.2em; color:rgba(216,164,255,0.6); }
+.footer-copy { font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:0.2em; color:rgba(216,164,255,0.4); }
 
-  .intro-tagline {
-    font-size: 0.7rem;
-    color: rgba(216,164,255,0.55);
-    letter-spacing: 0.5em;
-    text-transform: uppercase;
-    margin-top: 8px;
-    animation: fadeUp 1s ease 3.1s both;
-    font-family: 'Cinzel', serif;
-  }
-  @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-
-  .intro-slash-bottom {
-    width: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--purple-pale), transparent);
-    margin: 25px auto 0;
-    animation: slashGrow 0.5s ease 3.6s forwards;
-    box-shadow: 0 0 8px var(--purple-bright);
-  }
-
-  /* ── AMBIENT ── */
-  #ambient {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-  }
-  .ambient-orb {
-    position: absolute; border-radius: 50%; filter: blur(80px);
-    animation: orbDrift ease-in-out infinite;
-  }
-  .orb-1 { width:500px;height:500px;background:rgba(88,28,135,0.28);top:-100px;left:-100px;animation-duration:18s; }
-  .orb-2 { width:400px;height:400px;background:rgba(168,85,247,0.18);bottom:-50px;right:-50px;animation-duration:22s;animation-delay:-8s; }
-  .orb-3 { width:300px;height:300px;background:rgba(216,164,255,0.12);top:50%;left:50%;transform:translate(-50%,-50%);animation-duration:15s;animation-delay:-5s; }
-  @keyframes orbDrift { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-40px) scale(1.1)} }
-
-  #particles-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-  .p {
-    position: absolute;
-    border-radius: 50%;
-    background: var(--purple-pale);
-    animation: particleDrift linear infinite;
-    opacity: 0;
-  }
-  @keyframes particleDrift {
-    0% { transform: translateY(100vh); opacity: 0; }
-    5% { opacity: 0.5; }
-    95% { opacity: 0.3; }
-    100% { transform: translateY(-5vh); opacity: 0; }
-  }
-
-  /* ── NAVBAR ── */
-  nav {
-    position: sticky; top: 0; z-index: 100;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 18px 50px;
-    background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(168,85,247,0.15);
-  }
-  .nav-logo {
-    font-family: 'Cinzel', serif;
-    font-size: 0.85rem;
-    color: var(--purple-pale);
-    letter-spacing: 0.15em;
-    font-weight: 400;
-    text-shadow: 0 0 15px rgba(168,85,247,0.5);
-  }
-  .nav-links a {
-    color: rgba(255,255,255,0.75);
-    margin-left: 30px;
-    text-decoration: none;
-    font-family: 'Cinzel', serif;
-    font-size: 0.7rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    transition: color 0.3s, text-shadow 0.3s;
-  }
-  .nav-links a:hover { color: var(--purple-pale); text-shadow: 0 0 10px var(--purple-bright); }
-
-  /* ── HERO ── */
-  .hero {
-    min-height: 92vh;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    position: relative; z-index: 1;
-    text-align: center;
-    padding: 40px 20px;
-    animation: heroReveal 1s ease 8.8s both;
-  }
-  @keyframes heroReveal { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-
-  .hero-kanji-bg {
-    position: absolute; font-size: clamp(8rem, 20vw, 18rem);
-    color: rgba(168,85,247,0.04);
-    font-family: serif; user-select: none; pointer-events: none;
-    animation: kanjiDrift 12s ease-in-out infinite;
-  }
-  @keyframes kanjiDrift { 0%,100%{transform:translateY(0) rotate(-3deg);opacity:0.04} 50%{transform:translateY(-15px) rotate(2deg);opacity:0.08} }
-
-  .hero-overline {
-    font-family: 'Cinzel', serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.6em;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 20px;
-    opacity: 0.8;
-  }
-
-  .hero h1 {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(2.5rem, 8vw, 5.5rem);
-    font-weight: 300;
-    color: var(--white);
-    line-height: 1.1;
-    letter-spacing: 0.1em;
-    text-shadow: 0 0 40px rgba(168,85,247,0.6), 0 0 80px rgba(168,85,247,0.2);
-    margin-bottom: 8px;
-  }
-
-  .hero-subtitle-jp {
-    font-size: clamp(0.8rem, 2vw, 1.1rem);
-    color: rgba(216,164,255,0.8);
-    letter-spacing: 0.5em;
-    font-style: italic;
-    margin-bottom: 25px;
-  }
-
-  .hero-rule {
-    width: 1px; height: 50px;
-    background: linear-gradient(to bottom, transparent, var(--purple-pale), transparent);
-    margin: 0 auto 25px;
-  }
-
-  .hero-desc {
-    font-size: clamp(0.9rem, 2vw, 1.1rem);
-    color: var(--white-dim);
-    letter-spacing: 0.2em;
-    font-style: italic;
-    margin-bottom: 40px;
-    max-width: 420px;
-  }
-
-  .cta-btn {
-    display: inline-block;
-    padding: 14px 45px;
-    border: 1px solid rgba(168,85,247,0.5);
-    background: rgba(168,85,247,0.08);
-    color: var(--purple-pale);
-    text-decoration: none;
-    font-family: 'Cinzel', serif;
-    font-size: 0.7rem;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    transition: all 0.4s ease;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-  }
-  .cta-btn::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(168,85,247,0.2), transparent);
-    transform: translateX(-100%);
-    transition: transform 0.4s ease;
-  }
-  .cta-btn:hover { border-color: var(--purple-pale); box-shadow: 0 0 30px rgba(168,85,247,0.4), 0 0 60px rgba(168,85,247,0.1); transform: translateY(-2px); }
-  .cta-btn:hover::before { transform: translateX(0); }
-
-  .hero-scroll-hint {
-    position: absolute; bottom: 30px;
-    font-family: 'Cinzel', serif;
-    font-size: 0.6rem;
-    letter-spacing: 0.4em;
-    color: rgba(192,132,252,0.25);
-    text-transform: uppercase;
-    animation: scrollPulse 2.5s ease-in-out infinite;
-  }
-  @keyframes scrollPulse { 0%,100%{opacity:0.25;transform:translateY(0)} 50%{opacity:0.5;transform:translateY(4px)} }
-
-  /* ── SECTIONS ── */
-  .section {
-    padding: 100px 40px;
-    position: relative; z-index: 1;
-    text-align: center;
-  }
-
-  .section-header { margin-bottom: 60px; }
-  .section-num {
-    font-family: 'Cinzel', serif;
-    font-size: 0.6rem;
-    letter-spacing: 0.5em;
-    color: var(--gold);
-    opacity: 0.6;
-    margin-bottom: 12px;
-  }
-  .section-title {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(1.2rem, 3vw, 1.8rem);
-    font-weight: 300;
-    letter-spacing: 0.4em;
-    color: var(--purple-pale);
-    text-transform: uppercase;
-    text-shadow: 0 0 20px rgba(168,85,247,0.3);
-  }
-  .section-rule {
-    width: 80px; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--purple-bright), transparent);
-    margin: 16px auto 0;
-  }
-
-  /* ── DIVISIONS ── */
-  .divisions-grid {
-    display: flex; flex-wrap: wrap;
-    justify-content: center; gap: 24px;
-    max-width: 900px; margin: 0 auto;
-  }
-
-  .division-card {
-    width: 260px;
-    background: rgba(10,0,20,0.7);
-    border: 1px solid rgba(168,85,247,0.12);
-    padding: 40px 28px;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.4s ease;
-    cursor: default;
-  }
-  .division-card::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--purple-bright), transparent);
-    transform: scaleX(0);
-    transition: transform 0.4s ease;
-  }
-  .division-card::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 50% 0%, rgba(168,85,247,0.07), transparent 70%);
-    opacity: 0;
-    transition: opacity 0.4s ease;
-  }
-  .division-card:hover { border-color: rgba(168,85,247,0.35); transform: translateY(-8px); box-shadow: 0 20px 50px rgba(168,85,247,0.1); }
-  .division-card:hover::before { transform: scaleX(1); }
-  .division-card:hover::after { opacity: 1; }
-
-  .div-glyph { font-size: 2rem; margin-bottom: 16px; display: block; opacity: 0.7; }
-  .div-number {
-    font-family: 'Cinzel', serif;
-    font-size: 0.6rem;
-    letter-spacing: 0.5em;
-    color: var(--gold);
-    opacity: 0.6;
-    margin-bottom: 8px;
-  }
-  .div-name {
-    font-family: 'Cinzel', serif;
-    font-size: 1rem;
-    font-weight: 400;
-    letter-spacing: 0.2em;
-    color: var(--white);
-    margin-bottom: 10px;
-  }
-  .div-power {
-    font-size: 0.8rem;
-    color: rgba(216,164,255,0.85);
-    letter-spacing: 0.1em;
-    font-style: italic;
-  }
-
-  /* ── WHY JOIN ── */
-  .why-grid {
-    display: flex; flex-wrap: wrap;
-    justify-content: center; gap: 20px;
-    max-width: 800px; margin: 0 auto;
-  }
-  .why-item {
-    padding: 32px 28px;
-    border: 1px solid rgba(168,85,247,0.1);
-    background: rgba(10,0,20,0.5);
-    min-width: 200px; flex: 1;
-    transition: all 0.3s ease;
-    position: relative; overflow: hidden;
-  }
-  .why-item::before {
-    content: '';
-    position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--purple-bright), transparent);
-    transform: scaleX(0);
-    transition: transform 0.4s ease;
-  }
-  .why-item:hover { border-color: rgba(168,85,247,0.3); background: rgba(20,0,35,0.7); }
-  .why-item:hover::before { transform: scaleX(1); }
-  .why-icon { font-size: 1.4rem; margin-bottom: 12px; display: block; }
-  .why-text {
-    font-family: 'Cinzel', serif;
-    font-size: 0.7rem;
-    letter-spacing: 0.25em;
-    color: rgba(255,255,255,0.85);
-    text-transform: uppercase;
-  }
-
-  /* ── CTA SECTION ── */
-  .cta-section {
-    padding: 120px 40px;
-    position: relative; z-index: 1;
-    text-align: center;
-    border-top: 1px solid rgba(168,85,247,0.08);
-  }
-  .cta-section h2 {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(1.5rem, 4vw, 2.5rem);
-    font-weight: 300;
-    color: var(--white);
-    letter-spacing: 0.15em;
-    text-shadow: 0 0 30px rgba(168,85,247,0.4);
-    margin-bottom: 10px;
-  }
-  .cta-section p {
-    font-size: 1rem;
-    color: var(--white-dim);
-    font-style: italic;
-    letter-spacing: 0.1em;
-    margin-bottom: 40px;
-  }
-
-  /* ── FOOTER ── */
-  footer {
-    padding: 40px 50px;
-    border-top: 1px solid rgba(168,85,247,0.08);
-    display: flex; justify-content: space-between; align-items: center;
-    flex-wrap: wrap; gap: 16px;
-    position: relative; z-index: 1;
-  }
-  .footer-logo {
-    font-family: 'Cinzel', serif;
-    font-size: 0.7rem;
-    letter-spacing: 0.2em;
-    color: rgba(216,164,255,0.6);
-  }
-  .footer-copy {
-    font-family: 'Cinzel', serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    color: rgba(216,164,255,0.4);
-  }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 600px) {
-    nav { padding: 16px 24px; }
-    .nav-logo { font-size: 0.7rem; }
-    .nav-links a { margin-left: 16px; font-size: 0.6rem; }
-    .section { padding: 70px 24px; }
-    footer { padding: 30px 24px; }
-  }
+@media (max-width:600px) {
+  nav { padding:16px 24px; }
+  .nav-logo { font-size:0.7rem; }
+  .nav-links a { margin-left:16px; font-size:0.6rem; }
+  .section { padding:70px 24px; }
+  footer { padding:30px 24px; }
+}
 </style>
 </head>
 <body class="intro-active">
 
-<!-- INTRO OVERLAY -->
+<!-- ── INTRO ── -->
 <div id="intro">
   <div id="intro-bg"></div>
   <div id="shard-container"></div>
-  <div id="ripple-container"></div>
+
   <div id="intro-content">
     <div class="intro-eye" id="intro-eye">
-      <div class="intro-eye-lid-top" id="lid-top"></div>
-      <div class="intro-eye-lid-bot" id="lid-bot"></div>
+      <div class="intro-lid-top" id="lid-top"></div>
+      <div class="intro-lid-bot" id="lid-bot"></div>
       <div class="intro-iris-ring"></div>
       <div class="intro-pupil" id="pupil"></div>
     </div>
   </div>
+
   <div id="phase2">
-    <div id="slash-beam"></div>
     <div id="slash-flash"></div>
-    <div id="split-top"></div>
-    <div id="split-bot"></div>
-    <div id="crack-line"></div>
+    <canvas id="crack-canvas"></canvas>
     <canvas id="phase2-canvas"></canvas>
     <div id="phase2-name">
       <span class="p2-bar" id="bar-top"></span>
@@ -602,7 +367,7 @@
   </div>
 </div>
 
-<!-- AMBIENT -->
+<!-- ── AMBIENT ── -->
 <div id="ambient">
   <div class="ambient-orb orb-1"></div>
   <div class="ambient-orb orb-2"></div>
@@ -610,7 +375,7 @@
 </div>
 <div id="particles-bg"></div>
 
-<!-- NAV -->
+<!-- ── NAV ── -->
 <nav>
   <div class="nav-logo">Dominion of Kyōka Suigetsu</div>
   <div class="nav-links">
@@ -620,7 +385,7 @@
   </div>
 </nav>
 
-<!-- HERO -->
+<!-- ── HERO ── -->
 <section class="hero">
   <div class="hero-kanji-bg">月</div>
   <div class="hero-overline">Dominion of Kyōka Suigetsu</div>
@@ -632,7 +397,7 @@
   <div class="hero-scroll-hint">Scroll to Descend</div>
 </section>
 
-<!-- DIVISIONS -->
+<!-- ── DIVISIONS ── -->
 <section class="section" id="divisions">
   <div class="section-header">
     <div class="section-num">01 · Divisions</div>
@@ -640,40 +405,15 @@
     <div class="section-rule"></div>
   </div>
   <div class="divisions-grid">
-    <div class="division-card">
-      <span class="div-glyph">⚜</span>
-      <div class="div-number">Division · I</div>
-      <div class="div-name">The Vanguard</div>
-      <div class="div-power">20M+ Elites</div>
-    </div>
-    <div class="division-card">
-      <span class="div-glyph">⚔</span>
-      <div class="div-number">Division · II</div>
-      <div class="div-name">The Warriors</div>
-      <div class="div-power">10M+ Strength</div>
-    </div>
-    <div class="division-card">
-      <span class="div-glyph">🔱</span>
-      <div class="div-number">Division · III</div>
-      <div class="div-name">The Enforcers</div>
-      <div class="div-power">5M+ Seasoned</div>
-    </div>
-    <div class="division-card">
-      <span class="div-glyph">🌑</span>
-      <div class="div-number">Division · IV</div>
-      <div class="div-name">Shadow Pact</div>
-      <div class="div-power">Rising Hunters</div>
-    </div>
-    <div class="division-card">
-      <span class="div-glyph">🌀</span>
-      <div class="div-number">Division · V</div>
-      <div class="div-name">New Ascendants</div>
-      <div class="div-power">Recruits &amp; Initiates</div>
-    </div>
+    <div class="division-card"><span class="div-glyph">⚜</span><div class="div-number">Division · I</div><div class="div-name">The Vanguard</div><div class="div-power">20M+ Elites</div></div>
+    <div class="division-card"><span class="div-glyph">⚔</span><div class="div-number">Division · II</div><div class="div-name">The Warriors</div><div class="div-power">10M+ Strength</div></div>
+    <div class="division-card"><span class="div-glyph">🔱</span><div class="div-number">Division · III</div><div class="div-name">The Enforcers</div><div class="div-power">5M+ Seasoned</div></div>
+    <div class="division-card"><span class="div-glyph">🌑</span><div class="div-number">Division · IV</div><div class="div-name">Shadow Pact</div><div class="div-power">Rising Hunters</div></div>
+    <div class="division-card"><span class="div-glyph">🌀</span><div class="div-number">Division · V</div><div class="div-name">New Ascendants</div><div class="div-power">Recruits &amp; Initiates</div></div>
   </div>
 </section>
 
-<!-- WHY JOIN -->
+<!-- ── WHY JOIN ── -->
 <section class="section" id="why">
   <div class="section-header">
     <div class="section-num">02 · Purpose</div>
@@ -681,470 +421,505 @@
     <div class="section-rule"></div>
   </div>
   <div class="why-grid">
-    <div class="why-item">
-      <span class="why-icon">⚔</span>
-      <div class="why-text">Active PvP</div>
-    </div>
-    <div class="why-item">
-      <span class="why-icon">🔥</span>
-      <div class="why-text">Strong Team</div>
-    </div>
-    <div class="why-item">
-      <span class="why-icon">👑</span>
-      <div class="why-text">Aizen Leadership</div>
-    </div>
+    <div class="why-item"><span class="why-icon">⚔</span><div class="why-text">Active PvP</div></div>
+    <div class="why-item"><span class="why-icon">🔥</span><div class="why-text">Strong Team</div></div>
+    <div class="why-item"><span class="why-icon">👑</span><div class="why-text">Aizen Leadership</div></div>
   </div>
 </section>
 
-<!-- CTA SECTION -->
+<!-- ── CTA ── -->
 <section class="cta-section">
   <h2>The Illusion Awaits</h2>
   <p>Step into the Dominion. Reality is yours to rewrite.</p>
   <a href="https://discord.gg/5kJBrUCfTD" target="_blank" class="cta-btn">Enter the Discord</a>
 </section>
 
-<!-- FOOTER -->
+<!-- ── FOOTER ── -->
 <footer>
   <div class="footer-logo">Dominion of Kyōka Suigetsu</div>
   <div class="footer-copy">© Dominion of Kyōka Suigetsu</div>
 </footer>
 
 <script>
-  // ── SCROLL LOCK ──
-  // Prevent ALL scroll during intro (wheel, touch, keys)
-  function stopScroll(e) { e.preventDefault(); }
-  window.addEventListener('wheel', stopScroll, { passive: false });
-  window.addEventListener('touchmove', stopScroll, { passive: false });
-  window.addEventListener('keydown', function(e) {
-    if ([32,33,34,35,36,37,38,39,40].includes(e.keyCode)) e.preventDefault();
-  });
+"use strict";
 
-  function unlockScroll() {
-    window.removeEventListener('wheel', stopScroll);
-    window.removeEventListener('touchmove', stopScroll);
-    document.body.classList.remove('intro-active');
-    document.body.classList.add('intro-done');
+// ════════════════════════════════════════════
+//  CRACK DURATION — single variable (ms)
+//  Grow + hold + fade all scale from this.
+var CRACK_TOTAL_MS = 1000;
+// ════════════════════════════════════════════
+
+// ── SCROLL LOCK ──
+function stopScroll(e) { e.preventDefault(); }
+window.addEventListener('wheel',     stopScroll, { passive: false });
+window.addEventListener('touchmove', stopScroll, { passive: false });
+window.addEventListener('keydown', function(e) {
+  if ([32,33,34,35,36,37,38,39,40].indexOf(e.keyCode) !== -1) e.preventDefault();
+});
+function unlockScroll() {
+  window.removeEventListener('wheel',     stopScroll);
+  window.removeEventListener('touchmove', stopScroll);
+  document.body.classList.remove('intro-active');
+  document.body.classList.add('intro-done');
+}
+
+// ── RISING SHARDS ──
+(function() {
+  var c = document.getElementById('shard-container');
+  for (var i = 0; i < 30; i++) {
+    var s = document.createElement('div');
+    s.className = 'shard';
+    var h = Math.random() * 100 + 30;
+    s.style.cssText = 'left:' + (Math.random()*100).toFixed(1) + '%;height:' + h.toFixed(0) + 'px;animation-duration:' + (Math.random()*3+2).toFixed(1) + 's;animation-delay:' + (Math.random()*2.5).toFixed(1) + 's;opacity:' + (Math.random()*0.5+0.2).toFixed(2);
+    c.appendChild(s);
+  }
+}());
+
+// ── AMBIENT BG PARTICLES ──
+(function() {
+  var pc = document.getElementById('particles-bg');
+  for (var i = 0; i < 50; i++) {
+    var p = document.createElement('div');
+    p.className = 'bg-p';
+    var sz = Math.random() < 0.2 ? 2 : 1;
+    p.style.cssText = 'left:' + (Math.random()*100).toFixed(1) + '%;width:' + sz + 'px;height:' + sz + 'px;animation-duration:' + (Math.random()*18+8).toFixed(1) + 's;animation-delay:' + (Math.random()*15).toFixed(1) + 's';
+    pc.appendChild(p);
+  }
+}());
+
+// ── EYE SEQUENCE ──
+var pupil  = document.getElementById('pupil');
+var lidTop = document.getElementById('lid-top');
+var lidBot = document.getElementById('lid-bot');
+
+// Eye opens via CSS at ~0.9s. Look left → right → center → close → slash
+setTimeout(function() { pupil.style.transform = 'translateX(-22px)'; }, 1800);
+setTimeout(function() { pupil.style.transform = 'translateX(22px)';  }, 2500);
+setTimeout(function() { pupil.style.transform = 'translateX(0)';     }, 3200);
+setTimeout(function() {
+  // Close eyelids — overshoot to 55% each to guarantee no gap
+  lidTop.style.height = '60%';
+  lidBot.style.height = '60%';
+  // After close transition (~320ms), fast-fade eye and fire slash
+  setTimeout(function() {
+    var content = document.getElementById('intro-content');
+    content.style.transition = 'opacity 0.15s ease';
+    content.style.opacity    = '0';
+    setTimeout(runSlash, 180);
+  }, 340);
+}, 3700);
+
+// ── PHASE 2: SLASH + CRACKS + PARTICLES + NAME ──
+function runSlash() {
+  var flash    = document.getElementById('slash-flash');
+  var canvas   = document.getElementById('phase2-canvas');
+  var crackCv  = document.getElementById('crack-canvas');
+  var nameEl   = document.getElementById('phase2-name');
+  var barTop   = document.getElementById('bar-top');
+  var barBot   = document.getElementById('bar-bot');
+
+  var W = window.innerWidth;
+  var H = window.innerHeight;
+
+  canvas.width  = W; canvas.height  = H;
+  crackCv.width = W; crackCv.height = H;
+
+  var ctx  = canvas.getContext('2d');
+  var cCtx = crackCv.getContext('2d');
+
+  // Slash line: top-right → bottom-left (off-screen both ends)
+  var sx0 = W * 1.08, sy0 = H * -0.08;
+  var sx1 = W * -0.08, sy1 = H * 1.08;
+
+  var slashAngle = Math.atan2(sy1 - sy0, sx1 - sx0);
+  var perpAngle  = slashAngle - Math.PI / 2;
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  // ── SLASH ──
+  var trailPts    = [];
+  var TRAIL_AGE   = 18;
+  var trailCracks = [];
+  var SLASH_MS    = 230;
+  var slashStart  = performance.now();
+  var slashDone   = false;
+  var particles   = [];
+
+  function spawnTrailCrack(tx, ty) {
+    if (Math.random() > 0.8) return;
+    var ang = slashAngle + (Math.random() - 0.5) * 1.2;
+    var len = Math.random() * 28 + 8;
+    var cx  = tx + (Math.random() - 0.5) * 30;
+    var cy  = ty + (Math.random() - 0.5) * 30;
+    var pts = [{ x: cx, y: cy }];
+    var px = cx, py = cy;
+    var segs = Math.floor(Math.random() * 3) + 2;
+    for (var i = 0; i < segs; i++) {
+      var jitter = (Math.random() - 0.5) * 0.8;
+      var slen   = len / segs;
+      px += Math.cos(ang + jitter) * slen;
+      py += Math.sin(ang + jitter) * slen;
+      pts.push({ x: px, y: py });
+      if (Math.random() > 0.6) {
+        var ba = ang + (Math.random() > 0.5 ? 0.6 : -0.6) + (Math.random()-0.5)*0.3;
+        var bl = slen * (Math.random() * 0.6 + 0.3);
+        pts.push({ x: px + Math.cos(ba)*bl, y: py + Math.sin(ba)*bl });
+        pts.push({ x: px, y: py });
+      }
+    }
+    trailCracks.push({ pts: pts, age: 0, maxAge: Math.floor(Math.random()*20)+12 });
   }
 
-  // ── PHASE 1: Rising shards ──
-  (function() {
-    const c = document.getElementById('shard-container');
-    for (let i = 0; i < 30; i++) {
-      const s = document.createElement('div');
-      s.className = 'shard';
-      const h = Math.random() * 100 + 30;
-      s.style.cssText = `left:${Math.random()*100}%;height:${h}px;animation-duration:${(Math.random()*3+2).toFixed(1)}s;animation-delay:${(Math.random()*2.5).toFixed(1)}s;opacity:${(Math.random()*0.5+0.2).toFixed(2)}`;
-      c.appendChild(s);
-    }
-  })();
+  function drawTrailCrack(cr, fade) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(cr.pts[0].x, cr.pts[0].y);
+    for (var p = 1; p < cr.pts.length; p++) ctx.lineTo(cr.pts[p].x, cr.pts[p].y);
+    ctx.strokeStyle = 'rgba(0,0,0,' + (0.9*fade) + ')';
+    ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.filter = 'none';
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cr.pts[0].x, cr.pts[0].y);
+    for (var p = 1; p < cr.pts.length; p++) ctx.lineTo(cr.pts[p].x, cr.pts[p].y);
+    ctx.strokeStyle = 'rgba(80,0,120,' + (0.45*fade) + ')';
+    ctx.lineWidth = 6; ctx.filter = 'blur(2px)';
+    ctx.stroke();
+    ctx.restore();
+  }
 
-  // ── EYE LOOK LEFT → RIGHT → CLOSE → SLASH ──
-  const pupil  = document.getElementById('pupil');
-  const lidTop = document.getElementById('lid-top');
-  const lidBot = document.getElementById('lid-bot');
+  function slashFrame(now) {
+    ctx.clearRect(0, 0, W, H);
+    var elapsed  = now - slashStart;
+    var progress = Math.min(elapsed / SLASH_MS, 1);
+    var tipX = lerp(sx0, sx1, progress);
+    var tipY = lerp(sy0, sy1, progress);
 
-  // Eye opens at ~0.9s via CSS. Start look sequence at 1.8s
-  setTimeout(() => {
-    // Look LEFT
-    pupil.style.transform = 'translateX(-22px)';
-  }, 1800);
-
-  setTimeout(() => {
-    // Look RIGHT
-    pupil.style.transform = 'translateX(22px)';
-  }, 2500);
-
-  setTimeout(() => {
-    // Return to center
-    pupil.style.transform = 'translateX(0)';
-  }, 3200);
-
-  setTimeout(() => {
-    // Eye closes — lids slide in from top and bottom
-    lidTop.style.height = '55%';
-    lidBot.style.height = '55%';
-  }, 3700);
-
-  // ── PHASE 1 EXIT (after eye closes) ──
-  setTimeout(() => {
-    const content = document.getElementById('intro-content');
-    if (content) { content.style.transition = 'opacity 0.3s ease'; content.style.opacity = '0'; }
-  }, 4200);
-
-  // ── PHASE 2: SWORD SLASH ──
-  setTimeout(() => {
-    const flash  = document.getElementById('slash-flash');
-    const canvas = document.getElementById('phase2-canvas');
-    const nameEl = document.getElementById('phase2-name');
-    const barTop = document.getElementById('bar-top');
-    const barBot = document.getElementById('bar-bot');
-
-    const W = window.innerWidth;
-    const H = window.innerHeight;
-    canvas.width  = W;
-    canvas.height = H;
-    const ctx = canvas.getContext('2d');
-
-    // Slash: top-right → bottom-left
-    const sx0 = W * 1.08, sy0 = H * -0.08;
-    const sx1 = W * -0.08, sy1 = H * 1.08;
-
-    const slashAngle = Math.atan2(sy1 - sy0, sx1 - sx0);
-    const perpAngle  = slashAngle - Math.PI / 2;
-
-    function lerp(a, b, t) { return a + (b - a) * t; }
-
-    // ── Trail history for the slash ──
-    // We store tip positions as the blade sweeps, then draw them fading
-    const trailPoints = []; // { x, y, age }
-    const TRAIL_MAX_AGE = 18; // frames before fully gone
-
-    // Crack segments along the trail — generated once at slash time
-    const cracks = [];
-
-    const SLASH_DURATION = 230; // ms
-    const slashStart = performance.now();
-    let slashDone = false;
-    let slashAlpha = 1;
-    const particles = [];
-
-    function generateCracks(tipX, tipY) {
-      // Randomly sprout a short jagged crack near this tip position
-      if (Math.random() > 0.8) return; // ~35% chance per frame
-      const angle = slashAngle + (Math.random() - 0.5) * 1.2; // angle mostly along blade
-      const len   = Math.random() * 28 + 8;
-      const cx    = tipX + (Math.random() - 0.5) * 30;
-      const cy    = tipY + (Math.random() - 0.5) * 30;
-      // Generate jagged points
-      const pts   = [{ x: cx, y: cy }];
-      let px = cx, py = cy;
-      const segs = Math.floor(Math.random() * 3) + 2;
-      for (let i = 0; i < segs; i++) {
-        const jitter = (Math.random() - 0.5) * 0.8;
-        const segLen = len / segs;
-        px += Math.cos(angle + jitter) * segLen;
-        py += Math.sin(angle + jitter) * segLen;
-        pts.push({ x: px, y: py });
-        // Occasional branch
-        if (Math.random() > 0.6) {
-          const branchAngle = angle + (Math.random() > 0.5 ? 0.6 : -0.6) + (Math.random()-0.5)*0.3;
-          const branchLen   = segLen * (Math.random() * 0.6 + 0.3);
-          pts.push({ x: px + Math.cos(branchAngle)*branchLen, y: py + Math.sin(branchAngle)*branchLen });
-          pts.push({ x: px, y: py }); // back to main
-        }
-      }
-      cracks.push({ pts, age: 0, maxAge: Math.floor(Math.random() * 20) + 12 });
+    if (!slashDone) {
+      trailPts.push({ x: tipX, y: tipY, age: 0 });
+      spawnTrailCrack(tipX, tipY);
     }
 
-    function drawFrame(now) {
-      ctx.clearRect(0, 0, W, H);
-
-      const elapsed  = now - slashStart;
-      const progress = Math.min(elapsed / SLASH_DURATION, 1);
-      const tipX = lerp(sx0, sx1, progress);
-      const tipY = lerp(sy0, sy1, progress);
-
-      // Add tip to trail
-      if (!slashDone) {
-        trailPoints.push({ x: tipX, y: tipY, age: 0 });
-        generateCracks(tipX, tipY);
-      }
-
-      // ── Draw trail segments ──
-      // Each segment connects consecutive trail points, fading with age
-      for (let i = 1; i < trailPoints.length; i++) {
-        const p0   = trailPoints[i - 1];
-        const p1   = trailPoints[i];
-        const fade = 1 - (p0.age / TRAIL_MAX_AGE); // oldest points most faded
-        if (fade <= 0) continue;
-
-        // Thick glowing white trail
-        ctx.save();
-
-        // Outer bloom (big aura)
-        ctx.strokeStyle = `rgba(255,255,255,${0.08 * fade})`;
-        ctx.lineWidth   = 90;
-        ctx.filter      = 'blur(18px)';
-        ctx.stroke();
-
-        // Mid glow (main visible body)
-        ctx.beginPath();
-        ctx.moveTo(p0.x, p0.y);
-        ctx.lineTo(p1.x, p1.y);
-        ctx.strokeStyle = `rgba(255,255,255,${0.45 * fade})`;
-        ctx.lineWidth   = 28;
-        ctx.filter      = 'blur(6px)';
-        ctx.stroke();
-
-        // Core (thicker so cracks show clearly)
-        ctx.beginPath();
-        ctx.moveTo(p0.x, p0.y);
-        ctx.lineTo(p1.x, p1.y);
-        ctx.strokeStyle = `rgba(255,255,255,${1 * fade})`;
-        ctx.lineWidth   = 8;
-        ctx.filter      = 'none';
-        ctx.stroke();
-
-        ctx.restore();
-      }
-
-      // ── Draw cracks (dark jagged fractures across the trail) ──
-      for (let c = cracks.length - 1; c >= 0; c--) {
-        const cr   = cracks[c];
-        const fade = 1 - cr.age / cr.maxAge;
-        if (fade <= 0) { cracks.splice(c, 1); continue; }
-
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(cr.pts[0].x, cr.pts[0].y);
-        for (let p = 1; p < cr.pts.length; p++) {
-          ctx.lineTo(cr.pts[p].x, cr.pts[p].y);
-        }
-        // Black crack with thin dark purple fringe glow
-        ctx.strokeStyle = `rgba(0,0,0,${0.9 * fade})`;
-        ctx.lineWidth   = 2.5;
-        ctx.lineCap     = 'round';
-        ctx.lineJoin    = 'round';
-        ctx.filter      = 'none';
-        ctx.stroke();
-
-        // Thin dark purple halo around the crack
-        ctx.beginPath();
-        ctx.moveTo(cr.pts[0].x, cr.pts[0].y);
-        for (let p = 1; p < cr.pts.length; p++) ctx.lineTo(cr.pts[p].x, cr.pts[p].y);
-        ctx.strokeStyle = `rgba(80,0,120,${0.45 * fade})`;
-        ctx.lineWidth   = 6;
-        ctx.filter      = 'blur(2px)';
-        ctx.stroke();
-
-        ctx.restore();
-        cr.age++;
-      }
-
-      // ── Bright moving tip spark ──
-      if (!slashDone) {
-        ctx.save();
-        const tipGrad = ctx.createRadialGradient(tipX, tipY, 0, tipX, tipY, 22);
-        tipGrad.addColorStop(0, `rgba(255,255,255,1)`);
-        tipGrad.addColorStop(0.4, `rgba(220,200,255,0.7)`);
-        tipGrad.addColorStop(1, `rgba(185,110,249,0)`);
-        ctx.beginPath();
-        ctx.arc(tipX, tipY, 22, 0, Math.PI * 2);
-        ctx.fillStyle = tipGrad;
-        ctx.filter    = 'blur(1px)';
-        ctx.fill();
-        ctx.restore();
-      }
-
-      // Age trail points
-      for (let i = trailPoints.length - 1; i >= 0; i--) {
-        trailPoints[i].age++;
-        if (trailPoints[i].age >= TRAIL_MAX_AGE) trailPoints.splice(i, 1);
-      }
-
-      if (progress < 1) {
-        requestAnimationFrame(drawFrame);
-      } else {
-        slashDone = true;
-        // Keep fading trail and cracks until gone
-        function fadeFrame() {
-          ctx.clearRect(0, 0, W, H);
-          let hasContent = false;
-
-          for (let i = 1; i < trailPoints.length; i++) {
-            const p0   = trailPoints[i - 1];
-            const p1   = trailPoints[i];
-            const fade = 1 - p0.age / TRAIL_MAX_AGE;
-            if (fade <= 0) continue;
-            hasContent = true;
-            ctx.save();
-            ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y);
-            ctx.strokeStyle = `rgba(255,255,255,${0.95 * fade})`; ctx.lineWidth = 3.5; ctx.filter = 'none'; ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y);
-            ctx.strokeStyle = `rgba(255,255,255,${0.3 * fade})`; ctx.lineWidth = 14; ctx.filter = 'blur(4px)'; ctx.stroke();
-            ctx.restore();
-          }
-
-          for (let c = cracks.length - 1; c >= 0; c--) {
-            const cr = cracks[c]; const fade = 1 - cr.age / cr.maxAge;
-            if (fade <= 0) { cracks.splice(c, 1); continue; }
-            hasContent = true;
-            ctx.save();
-            ctx.beginPath(); ctx.moveTo(cr.pts[0].x, cr.pts[0].y);
-            for (let p = 1; p < cr.pts.length; p++) ctx.lineTo(cr.pts[p].x, cr.pts[p].y);
-            ctx.strokeStyle = `rgba(0,0,0,${0.9 * fade})`; ctx.lineWidth = 1.5; ctx.filter = 'none'; ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(cr.pts[0].x, cr.pts[0].y);
-            for (let p = 1; p < cr.pts.length; p++) ctx.lineTo(cr.pts[p].x, cr.pts[p].y);
-            ctx.strokeStyle = `rgba(80,0,120,${0.45 * fade})`; ctx.lineWidth = 4; ctx.filter = 'blur(2px)'; ctx.stroke();
-            ctx.restore(); cr.age++;
-          }
-
-          for (let i = trailPoints.length - 1; i >= 0; i--) {
-            trailPoints[i].age++;
-            if (trailPoints[i].age >= TRAIL_MAX_AGE) trailPoints.splice(i, 1);
-          }
-
-          if (hasContent) requestAnimationFrame(fadeFrame);
-          else ctx.clearRect(0, 0, W, H);
-        }
-        requestAnimationFrame(fadeFrame);
-      }
+    // Trail segments
+    for (var i = 1; i < trailPts.length; i++) {
+      var p0 = trailPts[i-1], p1 = trailPts[i];
+      var fade = 1 - p0.age / TRAIL_AGE;
+      if (fade <= 0) continue;
+      ctx.save();
+      ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y);
+      ctx.strokeStyle = 'rgba(255,255,255,' + (0.08*fade) + ')';
+      ctx.lineWidth = 90; ctx.lineCap = 'round'; ctx.filter = 'blur(18px)'; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y);
+      ctx.strokeStyle = 'rgba(255,255,255,' + (0.45*fade) + ')';
+      ctx.lineWidth = 28; ctx.filter = 'blur(6px)'; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y);
+      ctx.strokeStyle = 'rgba(255,255,255,' + fade + ')';
+      ctx.lineWidth = 8; ctx.filter = 'none'; ctx.stroke();
+      ctx.restore();
     }
-    requestAnimationFrame(drawFrame);
 
-    // Flash on impact
-    setTimeout(() => {
-      flash.style.transition = 'opacity 0.04s ease';
-      flash.style.opacity = '0.75';
-      setTimeout(() => { flash.style.transition = 'opacity 0.4s ease'; flash.style.opacity = '0'; }, 50);
-    }, SLASH_DURATION + 10);
+    // Trail cracks
+    for (var c = trailCracks.length - 1; c >= 0; c--) {
+      var cr = trailCracks[c];
+      var fade = 1 - cr.age / cr.maxAge;
+      if (fade <= 0) { trailCracks.splice(c, 1); continue; }
+      drawTrailCrack(cr, fade);
+      cr.age++;
+    }
 
-    // Particle burst along blade
-    setTimeout(() => {
-      fireParticleBurst();
-    }, SLASH_DURATION + 100);
+    // Tip spark
+    if (!slashDone) {
+      ctx.save();
+      var g = ctx.createRadialGradient(tipX,tipY,0,tipX,tipY,22);
+      g.addColorStop(0,   'rgba(255,255,255,1)');
+      g.addColorStop(0.4, 'rgba(220,200,255,0.7)');
+      g.addColorStop(1,   'rgba(185,110,249,0)');
+      ctx.beginPath(); ctx.arc(tipX,tipY,22,0,Math.PI*2);
+      ctx.fillStyle = g; ctx.filter = 'blur(1px)'; ctx.fill();
+      ctx.restore();
+    }
 
-    function fireParticleBurst() {
-      canvas.width = W; canvas.height = H;
-      const BLADE_POINTS = 80;
-      const PER_POINT    = 6;
+    // Age trail points
+    for (var i = trailPts.length - 1; i >= 0; i--) {
+      trailPts[i].age++;
+      if (trailPts[i].age >= TRAIL_AGE) trailPts.splice(i, 1);
+    }
 
-      for (let b = 0; b < BLADE_POINTS; b++) {
-        const t  = b / (BLADE_POINTS - 1);
-        const bx = lerp(sx0, sx1, t);
-        const by = lerp(sy0, sy1, t);
-        for (let p = 0; p < PER_POINT; p++) {
-          const side    = p % 2 === 0 ? 1 : -1;
-          const spread  = (Math.random() - 0.5) * 0.5;
-          const baseAng = perpAngle + side * Math.PI / 2 + spread;
-          const speed   = Math.random() * 22 + 10;
-          const size    = Math.random() < 0.25 ? Math.random() * 3 + 1.5 : Math.random() * 1.5 + 0.5;
-          const rv      = Math.random();
-          const hue     = rv < 0.45 ? [255,255,255] : rv < 0.75 ? [185,110,249] : [216,164,255];
-          particles.push({
-            x: bx + (Math.random()-0.5)*4, y: by + (Math.random()-0.5)*4,
-            vx: Math.cos(baseAng)*speed, vy: Math.sin(baseAng)*speed,
-            size, hue, alpha: 1, life: 1, decay: Math.random()*0.008+0.004, trail: []
-          });
-        }
-      }
-      // Gold sparks
-      for (let b = 0; b < 50; b++) {
-        const t  = Math.random();
-        const bx = lerp(sx0, sx1, t), by = lerp(sy0, sy1, t);
-        const side = Math.random() < 0.5 ? 1 : -1;
-        const ang  = perpAngle + side * Math.PI / 2 + (Math.random()-0.5)*0.4;
-        const spd  = Math.random() * 30 + 15;
-        particles.push({
-          x: bx, y: by, vx: Math.cos(ang)*spd, vy: Math.sin(ang)*spd,
-          size: Math.random()*1.2+0.4, hue: [226,192,128],
-          alpha: 1, life: 1, decay: Math.random()*0.006+0.003, trail: []
-        });
-      }
-
-      function particleTick() {
+    if (progress < 1) {
+      requestAnimationFrame(slashFrame);
+    } else {
+      slashDone = true;
+      (function fadeSlash() {
         ctx.clearRect(0, 0, W, H);
-        let alive = 0;
-        for (const p of particles) {
-          if (p.life <= 0) continue;
-          alive++;
-          p.trail.push({ x: p.x, y: p.y });
-          if (p.trail.length > 10) p.trail.shift();
-          if (p.trail.length > 1) {
-            for (let t = 0; t < p.trail.length - 1; t++) {
-              const frac = t / p.trail.length;
-              ctx.beginPath();
-              ctx.strokeStyle = `rgba(${p.hue[0]},${p.hue[1]},${p.hue[2]},${frac*p.alpha*0.5})`;
-              ctx.lineWidth = p.size * frac;
-              ctx.moveTo(p.trail[t].x, p.trail[t].y);
-              ctx.lineTo(p.trail[t+1].x, p.trail[t+1].y);
-              ctx.stroke();
+        var any = false;
+        for (var i = 1; i < trailPts.length; i++) {
+          var p0 = trailPts[i-1], p1 = trailPts[i];
+          var fade = 1 - p0.age / TRAIL_AGE;
+          if (fade <= 0) continue; any = true;
+          ctx.save();
+          ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y);
+          ctx.strokeStyle='rgba(255,255,255,'+(0.95*fade)+')'; ctx.lineWidth=8; ctx.filter='none'; ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y);
+          ctx.strokeStyle='rgba(255,255,255,'+(0.3*fade)+')'; ctx.lineWidth=28; ctx.filter='blur(6px)'; ctx.stroke();
+          ctx.restore();
+        }
+        for (var c = trailCracks.length-1; c >= 0; c--) {
+          var cr = trailCracks[c]; var fade = 1 - cr.age/cr.maxAge;
+          if (fade <= 0) { trailCracks.splice(c,1); continue; } any = true;
+          drawTrailCrack(cr, fade); cr.age++;
+        }
+        for (var i = trailPts.length-1; i >= 0; i--) {
+          trailPts[i].age++; if (trailPts[i].age >= TRAIL_AGE) trailPts.splice(i,1);
+        }
+        if (any) requestAnimationFrame(fadeSlash);
+      }());
+    }
+  }
+  requestAnimationFrame(slashFrame);
+
+  // Flash
+  setTimeout(function() {
+    flash.style.transition = 'opacity 0.04s ease';
+    flash.style.opacity = '0.75';
+    setTimeout(function() {
+      flash.style.transition = 'opacity 0.4s ease';
+      flash.style.opacity = '0';
+    }, 50);
+  }, SLASH_MS + 10);
+
+  // ── SCREEN CRACKS ──
+  // Cracks root along the slash line, one side each (split slice — not opposing).
+  // Each crack spreads naturally like glass: wanders, branches, curves,
+  // interacts with its neighbors rather than shooting in one straight direction.
+  setTimeout(function() { fireScreenCracks(); }, SLASH_MS + 60);
+
+  function fireScreenCracks() {
+    var ROOT_COUNT = 10; // roots per side along the blade
+    var REACH = Math.max(W, H) * 1.1;
+
+    // Build one crack tree from (rx,ry) on the given side of the blade.
+    // baseDir is the general perpendicular direction for that side,
+    // but each branch wanders freely with angular drift and sub-branches
+    // that spread at wider angles — making it feel like fracturing glass.
+    function buildCrack(rx, ry, baseDir) {
+      var branches = [];
+
+      function buildBranch(bx, by, angle, length, tStart, tEnd, depth) {
+        var pts    = [{ x: bx, y: by, t: tStart }];
+        var segs   = 8 + Math.floor(Math.random() * 5);
+        var cx = bx, cy = by;
+        var curAngle = angle;
+
+        for (var i = 1; i <= segs; i++) {
+          var frac = i / segs;
+          var t    = tStart + frac * (tEnd - tStart);
+
+          // Angular drift — wanders freely, more drift at lower depths
+          // This is what makes cracks look organic instead of straight
+          var driftRange = (0.45 + Math.random() * 0.35) * (1 / (depth + 1));
+          curAngle += (Math.random() - 0.5) * 2 * driftRange;
+
+          // Occasional sharper turn (crack changing direction)
+          if (Math.random() < 0.15) curAngle += (Math.random() - 0.5) * 0.9;
+
+          var segLen = (length / segs) * (0.7 + Math.random() * 0.6);
+          cx += Math.cos(curAngle) * segLen;
+          cy += Math.sin(curAngle) * segLen;
+          pts.push({ x: cx, y: cy, t: t });
+
+          // Sub-branches: spread at various angles, not just perpendicular
+          // depth 0 can have 2 branches, depth 1 can have 1, depth 2 none
+          if (depth < 2 && i > 1 && i < segs) {
+            var branchChance = depth === 0 ? 0.4 : 0.25;
+            if (Math.random() < branchChance) {
+              // Branch angle: anywhere from 30° to 120° off current direction
+              var side      = Math.random() > 0.5 ? 1 : -1;
+              var forkAng   = curAngle + side * (0.5 + Math.random() * 1.1);
+              var forkLen   = length * (0.2 + Math.random() * 0.45);
+              buildBranch(cx, cy, forkAng, forkLen, t, tEnd, depth + 1);
+            }
+            // Occasionally a second branch at depth 0
+            if (depth === 0 && Math.random() < 0.18) {
+              var side2     = Math.random() > 0.5 ? 1 : -1;
+              var forkAng2  = curAngle + side2 * (0.3 + Math.random() * 0.8);
+              var forkLen2  = length * (0.15 + Math.random() * 0.3);
+              buildBranch(cx, cy, forkAng2, forkLen2, t, tEnd, depth + 1);
             }
           }
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-          ctx.fillStyle = `rgba(${p.hue[0]},${p.hue[1]},${p.hue[2]},${p.alpha})`;
-          ctx.shadowBlur = 14;
-          ctx.shadowColor = `rgba(${p.hue[0]},${p.hue[1]},${p.hue[2]},0.9)`;
-          ctx.fill();
-          ctx.shadowBlur = 0;
-          p.x += p.vx; p.y += p.vy;
-          p.life -= p.decay;
-          p.alpha = Math.max(0, p.life);
         }
-        if (alive > 0) requestAnimationFrame(particleTick);
-        else { canvas.style.transition = 'opacity 0.4s ease'; canvas.style.opacity = '0'; }
+        branches.push(pts);
       }
-      requestAnimationFrame(particleTick);
 
-      setTimeout(() => revealName(nameEl, barTop, barBot), 600);
-    }
-    // MAIN CRACK PATH (diagonal, jagged)
-    const mainCrack = [];
-    const CRACK_POINTS = 40;
-
-    for (let i = 0; i <= CRACK_POINTS; i++) {
-      const t = i / CRACK_POINTS;
-
-      const baseX = lerp(sx0, sx1, t);
-      const baseY = lerp(sy0, sy1, t);
-
-      // perpendicular jitter for jagged look
-      const offset = (Math.random() - 0.5) * 60;
-
-      const x = baseX + Math.cos(perpAngle) * offset;
-      const y = baseY + Math.sin(perpAngle) * offset;
-
-      mainCrack.push({ x, y });
-    }
-    function revealName(nameEl, barTop, barBot) {
-      nameEl.style.opacity = '1';
-      barTop.style.transition = 'width 0.55s ease';
-      barTop.style.width = '260px';
-      setTimeout(() => { barBot.style.transition = 'width 0.55s ease'; barBot.style.width = '260px'; }, 160);
-
-      const h2 = nameEl.querySelector('h2');
-      h2.style.opacity = '0'; h2.style.filter = 'blur(10px)';
-      let flicks = 0;
-      const flicker = setInterval(() => {
-        h2.style.transition = 'opacity 0.04s, filter 0.5s ease';
-        h2.style.opacity    = flicks % 2 === 0 ? '1' : '0.05';
-        h2.style.filter     = flicks % 2 === 0 ? 'blur(0px)' : 'blur(6px)';
-        flicks++;
-        if (flicks >= 7) { clearInterval(flicker); h2.style.opacity = '1'; h2.style.filter = 'blur(0)'; }
-      }, 70);
-
-      const sub = nameEl.querySelector('.p2-sub');
-      sub.style.opacity = '0'; sub.style.transform = 'translateY(12px)';
-      setTimeout(() => {
-        sub.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-        sub.style.opacity = '1'; sub.style.transform = 'translateY(0)';
-      }, 750);
+      // Start each root with a slightly varied direction so neighboring cracks
+      // naturally fan out and interact rather than being parallel
+      var fanSpread = 0.1; // how much roots vary from the base perpendicular
+      var startAngle = baseDir + (Math.random() - 0.5) * fanSpread;
+      var rootLen    = REACH * (0.6 + Math.random() * 0.5);
+      buildBranch(rx, ry, startAngle, rootLen, 0, 1, 0);
+      return branches;
     }
 
-  }, 4600);
-
-  // ── HIDE INTRO + UNLOCK SCROLL ──
-  setTimeout(() => {
-    const intro = document.getElementById('intro');
-    if (intro) {
-      intro.style.transition = 'opacity 0.8s ease';
-      intro.style.opacity = '0';
-      setTimeout(() => { intro.style.display = 'none'; unlockScroll(); }, 800);
+    // Plant roots along the slash, ONE side only per side array
+    // Side A = perpendicular "upper-left" of slash
+    // Side B = perpendicular "lower-right" of slash
+    // Each side's cracks spread freely on their own half of the screen
+    var sideA = [], sideB = [];
+    for (var r = 0; r < ROOT_COUNT; r++) {
+      var t  = r / (ROOT_COUNT - 1);
+      var rx = lerp(sx0, sx1, t);
+      var ry = lerp(sy0, sy1, t);
+      // Stagger: earlier roots along the blade fire slightly sooner
+      var tOff = (r / ROOT_COUNT) * 0.3;
+      sideA.push({ tree: buildCrack(rx, ry, perpAngle),              tOffset: tOff });
+      sideB.push({ tree: buildCrack(rx, ry, perpAngle + Math.PI),    tOffset: tOff });
     }
-  }, 9000);
+    var allTrees = sideA.concat(sideB);
 
-  // ── AMBIENT PARTICLES ──
-  (function() {
-    const pc = document.getElementById('particles-bg');
-    for (let i = 0; i < 50; i++) {
-      const p = document.createElement('div');
-      p.className = 'p';
-      const size = Math.random() < 0.2 ? 2 : 1;
-      p.style.cssText = `left:${Math.random()*100}%;width:${size}px;height:${size}px;animation-duration:${(Math.random()*18+8).toFixed(1)}s;animation-delay:${(Math.random()*15).toFixed(1)}s`;
-      pc.appendChild(p);
+    var GROW_MS    = CRACK_TOTAL_MS * 0.3;
+    var HOLD_MS    = CRACK_TOTAL_MS * 0.4;
+    var FADE_MS    = CRACK_TOTAL_MS * 0.90;
+    var crackStart = performance.now();
+
+    function drawBranches(branches, progress, alpha) {
+      for (var b = 0; b < branches.length; b++) {
+        var branch = branches[b];
+        var vis = [];
+        for (var p = 0; p < branch.length; p++) {
+          if (branch[p].t <= progress) vis.push(branch[p]);
+        }
+        if (vis.length < 2) continue;
+        var lastIdx = branch.indexOf(vis[vis.length - 1]);
+        if (lastIdx + 1 < branch.length) {
+          var nxt  = branch[lastIdx + 1];
+          var dT   = nxt.t - vis[vis.length-1].t;
+          var segT = dT > 0 ? (progress - vis[vis.length-1].t) / dT : 1;
+          vis = vis.concat([{ x: lerp(vis[vis.length-1].x, nxt.x, segT), y: lerp(vis[vis.length-1].y, nxt.y, segT) }]);
+        }
+        cCtx.save();
+        cCtx.beginPath(); cCtx.moveTo(vis[0].x, vis[0].y);
+        for (var v = 1; v < vis.length; v++) cCtx.lineTo(vis[v].x, vis[v].y);
+        cCtx.strokeStyle = 'rgba(255,255,255,' + (0.6*alpha) + ')';
+        cCtx.lineWidth = 4; cCtx.lineCap = 'round'; cCtx.lineJoin = 'round'; cCtx.filter = 'blur(3px)'; cCtx.stroke();
+        cCtx.beginPath(); cCtx.moveTo(vis[0].x, vis[0].y);
+        for (var v = 1; v < vis.length; v++) cCtx.lineTo(vis[v].x, vis[v].y);
+        cCtx.strokeStyle = 'rgba(200,180,255,' + (0.18*alpha) + ')';
+        cCtx.lineWidth = 12; cCtx.filter = 'blur(7px)'; cCtx.stroke();
+        cCtx.beginPath(); cCtx.moveTo(vis[0].x, vis[0].y);
+        for (var v = 1; v < vis.length; v++) cCtx.lineTo(vis[v].x, vis[v].y);
+        cCtx.strokeStyle = 'rgba(0,0,0,' + alpha + ')';
+        cCtx.lineWidth = 2; cCtx.lineCap = 'round'; cCtx.lineJoin = 'round'; cCtx.filter = 'none'; cCtx.stroke();
+        cCtx.restore();
+      }
     }
-  })();
+
+    (function crackTick(now) {
+      cCtx.clearRect(0, 0, W, H);
+      var elapsed = now - crackStart;
+      var fadeT   = elapsed > (GROW_MS + HOLD_MS)
+        ? Math.min((elapsed - GROW_MS - HOLD_MS) / FADE_MS, 1) : 0;
+      var alpha   = 1 - fadeT;
+      if (alpha <= 0) { cCtx.clearRect(0, 0, W, H); return; }
+      for (var i = 0; i < allTrees.length; i++) {
+        var item   = allTrees[i];
+        var localT = Math.max(0, Math.min((elapsed / GROW_MS) - item.tOffset, 1));
+        drawBranches(item.tree, localT, alpha);
+      }
+      requestAnimationFrame(crackTick);
+    }(performance.now()));
+  }
+
+  // ── PARTICLES ──
+  setTimeout(function() { fireParticles(); }, SLASH_MS + 100);
+
+  function fireParticles() {
+    canvas.width = W; canvas.height = H;
+    var BLADE_PTS = 30, PER = 2;
+
+    for (var b = 0; b < BLADE_PTS; b++) {
+      var t  = b / (BLADE_PTS - 1);
+      var bx = lerp(sx0, sx1, t), by = lerp(sy0, sy1, t);
+      for (var p = 0; p < PER; p++) {
+        var side  = p % 2 === 0 ? 1 : -1;
+        var spread = (Math.random()-0.5)*0.5;
+        var ang   = perpAngle + side * Math.PI/2 + spread;
+        var spd   = Math.random()*22+10;
+        var sz    = Math.random()<0.25 ? Math.random()*3+1.5 : Math.random()*1.5+0.5;
+        var rv    = Math.random();
+        var hue   = rv<0.45?[255,255,255]:rv<0.75?[185,110,249]:[216,164,255];
+        particles.push({ x:bx+(Math.random()-0.5)*4, y:by+(Math.random()-0.5)*4, vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd, size:sz, hue:hue, life:1, decay:Math.random()*0.008+0.004, trail:[] });
+      }
+    }
+    // Gold sparks
+    for (var b = 0; b < 50; b++) {
+      var t  = Math.random();
+      var bx = lerp(sx0, sx1, t), by = lerp(sy0, sy1, t);
+      var side = Math.random()<0.5?1:-1;
+      var ang  = perpAngle + side*Math.PI/2 + (Math.random()-0.5)*0.4;
+      var spd  = Math.random()*30+15;
+      particles.push({ x:bx, y:by, vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd, size:Math.random()*1.2+0.4, hue:[226,192,128], life:1, decay:Math.random()*0.006+0.003, trail:[] });
+    }
+
+    (function particleTick() {
+      ctx.clearRect(0, 0, W, H);
+      var alive = 0;
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        if (p.life <= 0) continue; alive++;
+        p.trail.push({ x:p.x, y:p.y });
+        if (p.trail.length > 10) p.trail.shift();
+        if (p.trail.length > 1) {
+          for (var t = 0; t < p.trail.length-1; t++) {
+            var frac = t / p.trail.length;
+            ctx.beginPath();
+            ctx.strokeStyle='rgba('+p.hue[0]+','+p.hue[1]+','+p.hue[2]+','+(frac*p.life*0.5)+')';
+            ctx.lineWidth = p.size * frac;
+            ctx.moveTo(p.trail[t].x,p.trail[t].y); ctx.lineTo(p.trail[t+1].x,p.trail[t+1].y); ctx.stroke();
+          }
+        }
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+        ctx.fillStyle='rgba('+p.hue[0]+','+p.hue[1]+','+p.hue[2]+','+p.life+')';
+        ctx.shadowBlur=14; ctx.shadowColor='rgba('+p.hue[0]+','+p.hue[1]+','+p.hue[2]+',0.9)';
+        ctx.fill(); ctx.shadowBlur=0;
+        p.x+=p.vx; p.y+=p.vy; p.life-=p.decay;
+      }
+      if (alive > 0) requestAnimationFrame(particleTick);
+      else { canvas.style.transition='opacity 0.4s ease'; canvas.style.opacity='0'; }
+    }());
+
+    setTimeout(function() { revealName(); }, 600);
+  }
+
+  function revealName() {
+    nameEl.style.opacity = '1';
+    barTop.style.transition = 'width 0.55s ease'; barTop.style.width = '260px';
+    setTimeout(function() { barBot.style.transition='width 0.55s ease'; barBot.style.width='260px'; }, 160);
+
+    var h2 = nameEl.querySelector('h2');
+    h2.style.opacity='0'; h2.style.filter='blur(10px)';
+    var flicks = 0;
+    var flicker = setInterval(function() {
+      h2.style.transition = 'opacity 0.04s, filter 0.5s ease';
+      h2.style.opacity    = flicks%2===0 ? '1' : '0.05';
+      h2.style.filter     = flicks%2===0 ? 'blur(0px)' : 'blur(6px)';
+      flicks++;
+      if (flicks >= 7) { clearInterval(flicker); h2.style.opacity='1'; h2.style.filter='blur(0)'; }
+    }, 70);
+
+    var sub = nameEl.querySelector('.p2-sub');
+    sub.style.opacity='0'; sub.style.transform='translateY(12px)';
+    setTimeout(function() {
+      sub.style.transition='opacity 0.8s ease, transform 0.8s ease';
+      sub.style.opacity='1'; sub.style.transform='translateY(0)';
+    }, 750);
+  }
+}
+
+// ── HIDE INTRO ──
+setTimeout(function() {
+  var intro = document.getElementById('intro');
+  intro.style.transition = 'opacity 0.8s ease';
+  intro.style.opacity    = '0';
+  setTimeout(function() { intro.style.display='none'; unlockScroll(); }, 800);
+}, 9000);
 </script>
 </body>
 </html>
