@@ -25,21 +25,31 @@
 
   html { scroll-behavior: smooth; }
 
+  /* Cursor fix — never show crosshair text cursor */
   body {
     font-family: 'Cormorant Garamond', serif;
     background: #000;
     color: var(--white);
     overflow-x: hidden;
-    cursor: crosshair;
+    cursor: default;
+    user-select: none;
+  }
+
+  /* Lock scroll during intro */
+  body.intro-active {
+    overflow: hidden;
+  }
+  body.intro-done {
+    overflow: auto;
+    user-select: auto;
   }
 
   /* ── INTRO OVERLAY ── */
   #intro {
     position: fixed; inset: 0; background: #000; z-index: 9999;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    animation: introExit 1s ease 8s forwards;
+    cursor: default;
   }
-  @keyframes introExit { to { opacity: 0; pointer-events: none; } }
 
   #intro-bg {
     position: absolute; inset: 0;
@@ -61,33 +71,17 @@
     to { transform: translateY(-110vh); opacity: 0; }
   }
 
-  /* Phase 2: ripple rings that expand outward */
   #ripple-container { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-  .ripple-ring {
-    position: absolute;
-    border-radius: 50%;
-    border: 1px solid rgba(185,110,249,0.5);
-    top: 50%; left: 50%;
-    transform: translate(-50%,-50%) scale(0);
-    opacity: 0;
-    animation: rippleExpand 2s ease-out forwards;
-  }
-  @keyframes rippleExpand {
-    0% { transform: translate(-50%,-50%) scale(0); opacity: 0.8; }
-    100% { transform: translate(-50%,-50%) scale(6); opacity: 0; }
-  }
 
-  /* ── PHASE 2: SWORD SLASH + SPLIT SCREEN ── */
+  /* ── PHASE 2 wrapper ── */
   #phase2 {
     position: absolute; inset: 0; z-index: 10;
     pointer-events: none;
     overflow: hidden;
   }
 
-  /* Slash canvas — drawn via JS */
   #slash-beam { display: none; }
 
-  /* White flash on impact */
   #slash-flash {
     position: absolute; inset: 0;
     background: #fff;
@@ -97,14 +91,12 @@
 
   #split-top, #split-bot, #crack-line { display: none; }
 
-  /* Canvas for slash + particles */
   #phase2-canvas {
     position: absolute; inset: 0;
     width: 100%; height: 100%;
     opacity: 1;
   }
 
-  /* Crew name that fades in after particles settle */
   #phase2-name {
     position: absolute;
     top: 50%; left: 50%;
@@ -112,6 +104,7 @@
     text-align: center;
     opacity: 0;
     z-index: 5;
+    white-space: nowrap;
   }
   #phase2-name h2 {
     font-family: 'Cinzel', serif;
@@ -145,6 +138,7 @@
     box-shadow: 0 0 8px var(--gold);
   }
 
+  /* ── INTRO PHASE 1 CONTENT ── */
   #intro-content { position: relative; z-index: 2; text-align: center; }
 
   .intro-slash {
@@ -156,6 +150,7 @@
   }
   @keyframes slashGrow { to { width: 280px; } }
 
+  /* Eye container */
   .intro-eye {
     width: 130px; height: 65px;
     border: 1.5px solid var(--purple-pale);
@@ -166,15 +161,20 @@
     animation: eyeOpen 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.9s forwards;
     box-shadow: 0 0 40px var(--purple-glow), inset 0 0 25px rgba(185,110,249,0.2);
     position: relative;
+    overflow: hidden;
   }
   @keyframes eyeOpen { to { transform: scaleY(1); } }
 
+  /* Pupil — JS will move it via transform */
   .intro-pupil {
     width: 44px; height: 44px;
     background: radial-gradient(circle at 40% 40%, #d8a4ff, #581c87 60%, #000);
     border-radius: 50%;
-    animation: pupilPulse 2s ease infinite;
     box-shadow: 0 0 20px var(--purple-bright);
+    position: relative;
+    z-index: 2;
+    transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    animation: pupilPulse 2s ease infinite;
   }
   @keyframes pupilPulse { 0%,100%{box-shadow:0 0 15px #b96ef9} 50%{box-shadow:0 0 50px #d8a4ff, 0 0 80px #b96ef9} }
 
@@ -185,6 +185,18 @@
     animation: irisRotate 4s linear infinite;
   }
   @keyframes irisRotate { to { transform: rotate(360deg); } }
+
+  /* Eye lid close — top and bottom lids that close over the eye */
+  .intro-eye-lid-top,
+  .intro-eye-lid-bot {
+    position: absolute; left: -2px; right: -2px;
+    background: #331728;
+    z-index: 3;
+    transition: height 0.35s cubic-bezier(0.4,0,0.2,1);
+    height: 0;
+  }
+  .intro-eye-lid-top { top: -2px; }
+  .intro-eye-lid-bot { bottom: -2px; }
 
   .intro-title {
     font-family: 'Cinzel', serif;
@@ -225,7 +237,7 @@
     box-shadow: 0 0 8px var(--purple-bright);
   }
 
-  /* ── AMBIENT BACKGROUND ── */
+  /* ── AMBIENT ── */
   #ambient {
     position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
   }
@@ -359,6 +371,7 @@
     transition: all 0.4s ease;
     position: relative;
     overflow: hidden;
+    cursor: pointer;
   }
   .cta-btn::before {
     content: '';
@@ -381,7 +394,7 @@
   }
   @keyframes scrollPulse { 0%,100%{opacity:0.25;transform:translateY(0)} 50%{opacity:0.5;transform:translateY(4px)} }
 
-  /* ── SECTION BASE ── */
+  /* ── SECTIONS ── */
   .section {
     padding: 100px 40px;
     position: relative; z-index: 1;
@@ -447,10 +460,7 @@
   .division-card:hover::before { transform: scaleX(1); }
   .division-card:hover::after { opacity: 1; }
 
-  .div-glyph {
-    font-size: 2rem; margin-bottom: 16px;
-    display: block; opacity: 0.7;
-  }
+  .div-glyph { font-size: 2rem; margin-bottom: 16px; display: block; opacity: 0.7; }
   .div-number {
     font-family: 'Cinzel', serif;
     font-size: 0.6rem;
@@ -561,7 +571,7 @@
   }
 </style>
 </head>
-<body>
+<body class="intro-active">
 
 <!-- INTRO OVERLAY -->
 <div id="intro">
@@ -569,13 +579,13 @@
   <div id="shard-container"></div>
   <div id="ripple-container"></div>
   <div id="intro-content">
-    <div class="intro-eye">
+    <div class="intro-eye" id="intro-eye">
+      <div class="intro-eye-lid-top" id="lid-top"></div>
+      <div class="intro-eye-lid-bot" id="lid-bot"></div>
       <div class="intro-iris-ring"></div>
-      <div class="intro-pupil"></div>
+      <div class="intro-pupil" id="pupil"></div>
     </div>
-
   </div>
-  <!-- Phase 2: Sword slash split + particle name assembly -->
   <div id="phase2">
     <div id="slash-beam"></div>
     <div id="slash-flash"></div>
@@ -613,7 +623,7 @@
 <!-- HERO -->
 <section class="hero">
   <div class="hero-kanji-bg">月</div>
-  <div class="hero-overline">Hōgyoku Syndicate · Est. 2026</div>
+  <div class="hero-overline">Dominion of Kyōka Suigetsu</div>
   <h1>Transcend<br>Limits</h1>
   <div class="hero-subtitle-jp">支配 · 進化 · 超越</div>
   <div class="hero-rule"></div>
@@ -696,10 +706,26 @@
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">Dominion of Kyōka Suigetsu</div>
-  <div class="footer-copy">© 2026 Hōgyoku Syndicate</div>
+  <div class="footer-copy">© Dominion of Kyōka Suigetsu</div>
 </footer>
 
 <script>
+  // ── SCROLL LOCK ──
+  // Prevent ALL scroll during intro (wheel, touch, keys)
+  function stopScroll(e) { e.preventDefault(); }
+  window.addEventListener('wheel', stopScroll, { passive: false });
+  window.addEventListener('touchmove', stopScroll, { passive: false });
+  window.addEventListener('keydown', function(e) {
+    if ([32,33,34,35,36,37,38,39,40].includes(e.keyCode)) e.preventDefault();
+  });
+
+  function unlockScroll() {
+    window.removeEventListener('wheel', stopScroll);
+    window.removeEventListener('touchmove', stopScroll);
+    document.body.classList.remove('intro-active');
+    document.body.classList.add('intro-done');
+  }
+
   // ── PHASE 1: Rising shards ──
   (function() {
     const c = document.getElementById('shard-container');
@@ -712,20 +738,46 @@
     }
   })();
 
-  // ── PHASE 1 EXIT ──
+  // ── EYE LOOK LEFT → RIGHT → CLOSE → SLASH ──
+  const pupil  = document.getElementById('pupil');
+  const lidTop = document.getElementById('lid-top');
+  const lidBot = document.getElementById('lid-bot');
+
+  // Eye opens at ~0.9s via CSS. Start look sequence at 1.8s
+  setTimeout(() => {
+    // Look LEFT
+    pupil.style.transform = 'translateX(-22px)';
+  }, 1800);
+
+  setTimeout(() => {
+    // Look RIGHT
+    pupil.style.transform = 'translateX(22px)';
+  }, 2500);
+
+  setTimeout(() => {
+    // Return to center
+    pupil.style.transform = 'translateX(0)';
+  }, 3200);
+
+  setTimeout(() => {
+    // Eye closes — lids slide in from top and bottom
+    lidTop.style.height = '55%';
+    lidBot.style.height = '55%';
+  }, 3700);
+
+  // ── PHASE 1 EXIT (after eye closes) ──
   setTimeout(() => {
     const content = document.getElementById('intro-content');
-    if (content) { content.style.transition = 'opacity 0.5s ease'; content.style.opacity = '0'; }
-  }, 4400);
+    if (content) { content.style.transition = 'opacity 0.3s ease'; content.style.opacity = '0'; }
+  }, 4200);
 
-  // ── PHASE 2 ──
+  // ── PHASE 2: SWORD SLASH ──
   setTimeout(() => {
     const flash  = document.getElementById('slash-flash');
     const canvas = document.getElementById('phase2-canvas');
     const nameEl = document.getElementById('phase2-name');
     const barTop = document.getElementById('bar-top');
     const barBot = document.getElementById('bar-bot');
-    const bg     = document.getElementById('intro-bg');
 
     const W = window.innerWidth;
     const H = window.innerHeight;
@@ -733,251 +785,331 @@
     canvas.height = H;
     const ctx = canvas.getContext('2d');
 
-    // ── REAL CANVAS SWORD SLASH ──
-    // Pure white razor line — bright on impact, quick fade
-    // Direction: top-right → bottom-left
-    const SLASH_DURATION = 135; // ms
-    const slashStart = performance.now();
+    // Slash: top-right → bottom-left
+    const sx0 = W * 1.08, sy0 = H * -0.08;
+    const sx1 = W * -0.08, sy1 = H * 1.08;
 
-    const sx0 = W * 1.05, sy0 = H * -0.05;
-    const sx1 = W * -0.05, sy1 = H * 1.05;
-
-    // Slash angle (perpendicular direction for particles)
-    const slashAngle = Math.atan2(sy1 - sy0, sx1 - sx0); // ~225 deg
-    const perpAngle  = slashAngle - Math.PI / 2;          // 90° from blade = outward normals
-
-    let slashDone = false;
-    const particles = [];
+    const slashAngle = Math.atan2(sy1 - sy0, sx1 - sx0);
+    const perpAngle  = slashAngle - Math.PI / 2;
 
     function lerp(a, b, t) { return a + (b - a) * t; }
 
-    function drawSlashAt(progress, alpha) {
-      // progress 0→1: blade sweeps from sx0,sy0 to sx1,sy1
-      // We show the full drawn line from start up to current tip,
-      // so it looks like a sword cutting — not a moving dot.
+    // ── Trail history for the slash ──
+    // We store tip positions as the blade sweeps, then draw them fading
+    const trailPoints = []; // { x, y, age }
+    const TRAIL_MAX_AGE = 18; // frames before fully gone
+
+    // Crack segments along the trail — generated once at slash time
+    const cracks = [];
+
+    const SLASH_DURATION = 230; // ms
+    const slashStart = performance.now();
+    let slashDone = false;
+    let slashAlpha = 1;
+    const particles = [];
+
+    function generateCracks(tipX, tipY) {
+      // Randomly sprout a short jagged crack near this tip position
+      if (Math.random() > 0.8) return; // ~35% chance per frame
+      const angle = slashAngle + (Math.random() - 0.5) * 1.2; // angle mostly along blade
+      const len   = Math.random() * 28 + 8;
+      const cx    = tipX + (Math.random() - 0.5) * 30;
+      const cy    = tipY + (Math.random() - 0.5) * 30;
+      // Generate jagged points
+      const pts   = [{ x: cx, y: cy }];
+      let px = cx, py = cy;
+      const segs = Math.floor(Math.random() * 3) + 2;
+      for (let i = 0; i < segs; i++) {
+        const jitter = (Math.random() - 0.5) * 0.8;
+        const segLen = len / segs;
+        px += Math.cos(angle + jitter) * segLen;
+        py += Math.sin(angle + jitter) * segLen;
+        pts.push({ x: px, y: py });
+        // Occasional branch
+        if (Math.random() > 0.6) {
+          const branchAngle = angle + (Math.random() > 0.5 ? 0.6 : -0.6) + (Math.random()-0.5)*0.3;
+          const branchLen   = segLen * (Math.random() * 0.6 + 0.3);
+          pts.push({ x: px + Math.cos(branchAngle)*branchLen, y: py + Math.sin(branchAngle)*branchLen });
+          pts.push({ x: px, y: py }); // back to main
+        }
+      }
+      cracks.push({ pts, age: 0, maxAge: Math.floor(Math.random() * 20) + 12 });
+    }
+
+    function drawFrame(now) {
+      ctx.clearRect(0, 0, W, H);
+
+      const elapsed  = now - slashStart;
+      const progress = Math.min(elapsed / SLASH_DURATION, 1);
       const tipX = lerp(sx0, sx1, progress);
       const tipY = lerp(sy0, sy1, progress);
 
-      ctx.save();
+      // Add tip to trail
+      if (!slashDone) {
+        trailPoints.push({ x: tipX, y: tipY, age: 0 });
+        generateCracks(tipX, tipY);
+      }
 
-      // Outer soft white glow (wide, very faint) — energy shimmer
-      ctx.beginPath();
-      ctx.moveTo(sx0, sy0);
-      ctx.lineTo(tipX, tipY);
-      ctx.strokeStyle = `rgba(255,255,255,${0.08 * alpha})`;
-      ctx.lineWidth = 40;
-      ctx.lineCap = 'round';
-      ctx.filter = 'blur(12px)';
-      ctx.stroke();
+      // ── Draw trail segments ──
+      // Each segment connects consecutive trail points, fading with age
+      for (let i = 1; i < trailPoints.length; i++) {
+        const p0   = trailPoints[i - 1];
+        const p1   = trailPoints[i];
+        const fade = 1 - (p0.age / TRAIL_MAX_AGE); // oldest points most faded
+        if (fade <= 0) continue;
 
-      // Inner glow — narrow white halo
-      ctx.beginPath();
-      ctx.moveTo(sx0, sy0);
-      ctx.lineTo(tipX, tipY);
-      ctx.strokeStyle = `rgba(255,255,255,${0.35 * alpha})`;
-      ctx.lineWidth = 6;
-      ctx.filter = 'blur(3px)';
-      ctx.stroke();
+        // Thick glowing white trail
+        ctx.save();
 
-      // Hard white razor core — the actual blade
-      ctx.beginPath();
-      ctx.moveTo(sx0, sy0);
-      ctx.lineTo(tipX, tipY);
-      ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
-      ctx.lineWidth = 1.5;
-      ctx.filter = 'none';
-      ctx.stroke();
+        // Outer bloom (big aura)
+        ctx.strokeStyle = `rgba(255,255,255,${0.08 * fade})`;
+        ctx.lineWidth   = 90;
+        ctx.filter      = 'blur(18px)';
+        ctx.stroke();
 
-      // Bright tip point — leading edge spark
-      const tipGrad = ctx.createRadialGradient(tipX, tipY, 0, tipX, tipY, 18);
-      tipGrad.addColorStop(0, `rgba(255,255,255,${alpha})`);
-      tipGrad.addColorStop(0.5, `rgba(220,200,255,${0.5 * alpha})`);
-      tipGrad.addColorStop(1, `rgba(255,255,255,0)`);
-      ctx.beginPath();
-      ctx.arc(tipX, tipY, 18, 0, Math.PI * 2);
-      ctx.fillStyle = tipGrad;
-      ctx.filter = 'blur(1px)';
-      ctx.fill();
+        // Mid glow (main visible body)
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.strokeStyle = `rgba(255,255,255,${0.45 * fade})`;
+        ctx.lineWidth   = 28;
+        ctx.filter      = 'blur(6px)';
+        ctx.stroke();
 
-      ctx.restore();
-    }
+        // Core (thicker so cracks show clearly)
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.strokeStyle = `rgba(255,255,255,${1 * fade})`;
+        ctx.lineWidth   = 8;
+        ctx.filter      = 'none';
+        ctx.stroke();
 
-    // Slash fade-out state
-    let slashAlpha = 1;
-    let slashProgress = 0;
+        ctx.restore();
+      }
 
-    function slashTick(now) {
-      const elapsed = now - slashStart;
-      slashProgress = Math.min(elapsed / SLASH_DURATION, 1);
+      // ── Draw cracks (dark jagged fractures across the trail) ──
+      for (let c = cracks.length - 1; c >= 0; c--) {
+        const cr   = cracks[c];
+        const fade = 1 - cr.age / cr.maxAge;
+        if (fade <= 0) { cracks.splice(c, 1); continue; }
 
-      ctx.clearRect(0, 0, W, H);
-      drawSlashAt(slashProgress, slashAlpha);
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(cr.pts[0].x, cr.pts[0].y);
+        for (let p = 1; p < cr.pts.length; p++) {
+          ctx.lineTo(cr.pts[p].x, cr.pts[p].y);
+        }
+        // Black crack with thin dark purple fringe glow
+        ctx.strokeStyle = `rgba(0,0,0,${0.9 * fade})`;
+        ctx.lineWidth   = 2.5;
+        ctx.lineCap     = 'round';
+        ctx.lineJoin    = 'round';
+        ctx.filter      = 'none';
+        ctx.stroke();
 
-      if (slashProgress < 1) {
-        requestAnimationFrame(slashTick);
+        // Thin dark purple halo around the crack
+        ctx.beginPath();
+        ctx.moveTo(cr.pts[0].x, cr.pts[0].y);
+        for (let p = 1; p < cr.pts.length; p++) ctx.lineTo(cr.pts[p].x, cr.pts[p].y);
+        ctx.strokeStyle = `rgba(80,0,120,${0.45 * fade})`;
+        ctx.lineWidth   = 6;
+        ctx.filter      = 'blur(2px)';
+        ctx.stroke();
+
+        ctx.restore();
+        cr.age++;
+      }
+
+      // ── Bright moving tip spark ──
+      if (!slashDone) {
+        ctx.save();
+        const tipGrad = ctx.createRadialGradient(tipX, tipY, 0, tipX, tipY, 22);
+        tipGrad.addColorStop(0, `rgba(255,255,255,1)`);
+        tipGrad.addColorStop(0.4, `rgba(220,200,255,0.7)`);
+        tipGrad.addColorStop(1, `rgba(185,110,249,0)`);
+        ctx.beginPath();
+        ctx.arc(tipX, tipY, 22, 0, Math.PI * 2);
+        ctx.fillStyle = tipGrad;
+        ctx.filter    = 'blur(1px)';
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Age trail points
+      for (let i = trailPoints.length - 1; i >= 0; i--) {
+        trailPoints[i].age++;
+        if (trailPoints[i].age >= TRAIL_MAX_AGE) trailPoints.splice(i, 1);
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(drawFrame);
       } else {
         slashDone = true;
-        // Quickly fade the slash out after complete
-        function fadeTick(now2) {
+        // Keep fading trail and cracks until gone
+        function fadeFrame() {
           ctx.clearRect(0, 0, W, H);
-          slashAlpha -= 0.07; // fast fade
-          if (slashAlpha > 0) {
-            drawSlashAt(1, slashAlpha);
-            requestAnimationFrame(fadeTick);
-          } else {
-            ctx.clearRect(0, 0, W, H);
+          let hasContent = false;
+
+          for (let i = 1; i < trailPoints.length; i++) {
+            const p0   = trailPoints[i - 1];
+            const p1   = trailPoints[i];
+            const fade = 1 - p0.age / TRAIL_MAX_AGE;
+            if (fade <= 0) continue;
+            hasContent = true;
+            ctx.save();
+            ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y);
+            ctx.strokeStyle = `rgba(255,255,255,${0.95 * fade})`; ctx.lineWidth = 3.5; ctx.filter = 'none'; ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y);
+            ctx.strokeStyle = `rgba(255,255,255,${0.3 * fade})`; ctx.lineWidth = 14; ctx.filter = 'blur(4px)'; ctx.stroke();
+            ctx.restore();
           }
+
+          for (let c = cracks.length - 1; c >= 0; c--) {
+            const cr = cracks[c]; const fade = 1 - cr.age / cr.maxAge;
+            if (fade <= 0) { cracks.splice(c, 1); continue; }
+            hasContent = true;
+            ctx.save();
+            ctx.beginPath(); ctx.moveTo(cr.pts[0].x, cr.pts[0].y);
+            for (let p = 1; p < cr.pts.length; p++) ctx.lineTo(cr.pts[p].x, cr.pts[p].y);
+            ctx.strokeStyle = `rgba(0,0,0,${0.9 * fade})`; ctx.lineWidth = 1.5; ctx.filter = 'none'; ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cr.pts[0].x, cr.pts[0].y);
+            for (let p = 1; p < cr.pts.length; p++) ctx.lineTo(cr.pts[p].x, cr.pts[p].y);
+            ctx.strokeStyle = `rgba(80,0,120,${0.45 * fade})`; ctx.lineWidth = 4; ctx.filter = 'blur(2px)'; ctx.stroke();
+            ctx.restore(); cr.age++;
+          }
+
+          for (let i = trailPoints.length - 1; i >= 0; i--) {
+            trailPoints[i].age++;
+            if (trailPoints[i].age >= TRAIL_MAX_AGE) trailPoints.splice(i, 1);
+          }
+
+          if (hasContent) requestAnimationFrame(fadeFrame);
+          else ctx.clearRect(0, 0, W, H);
         }
-        requestAnimationFrame(fadeTick);
+        requestAnimationFrame(fadeFrame);
       }
     }
-    requestAnimationFrame(slashTick);
+    requestAnimationFrame(drawFrame);
 
-    // Flash on slash completion
+    // Flash on impact
     setTimeout(() => {
       flash.style.transition = 'opacity 0.04s ease';
-      flash.style.opacity = '0.7';
-      setTimeout(() => { flash.style.transition = 'opacity 0.35s ease'; flash.style.opacity = '0'; }, 45);
+      flash.style.opacity = '0.75';
+      setTimeout(() => { flash.style.transition = 'opacity 0.4s ease'; flash.style.opacity = '0'; }, 50);
     }, SLASH_DURATION + 10);
 
-    // Fire particles along the blade line
+    // Particle burst along blade
     setTimeout(() => {
       fireParticleBurst();
-    }, SLASH_DURATION + 80);
+    }, SLASH_DURATION + 100);
 
-    // ── PARTICLES: spawned all along the slash line, shoot perpendicular ──
     function fireParticleBurst() {
-      canvas.width  = W;
-      canvas.height = H;
-
-      // Perpendicular vectors (both sides of the blade)
-      const pxPos =  Math.cos(perpAngle); // "above" slash
-      const pyPos =  Math.sin(perpAngle);
-      const pxNeg = -pxPos;               // "below" slash
-      const pyNeg = -pyPos;
-
-      // Sample N points evenly along the blade, spawn particles at each
-      const BLADE_POINTS = 80;   // sample points along blade
-      const PER_POINT    = 9;    // particles per point
+      canvas.width = W; canvas.height = H;
+      const BLADE_POINTS = 80;
+      const PER_POINT    = 6;
 
       for (let b = 0; b < BLADE_POINTS; b++) {
-        const t   = b / (BLADE_POINTS - 1);
-        const bx  = lerp(sx0, sx1, t);
-        const by  = lerp(sy0, sy1, t);
-
+        const t  = b / (BLADE_POINTS - 1);
+        const bx = lerp(sx0, sx1, t);
+        const by = lerp(sy0, sy1, t);
         for (let p = 0; p < PER_POINT; p++) {
-          // Shoot perpendicular to blade — half each side
           const side    = p % 2 === 0 ? 1 : -1;
-          const spread  = (Math.random() - 0.5) * 0.55; // slight angular spread
+          const spread  = (Math.random() - 0.5) * 0.5;
           const baseAng = perpAngle + side * Math.PI / 2 + spread;
           const speed   = Math.random() * 22 + 10;
           const size    = Math.random() < 0.25 ? Math.random() * 3 + 1.5 : Math.random() * 1.5 + 0.5;
           const rv      = Math.random();
-          const hue     = rv < 0.45 ? [255,255,255] :
-                          rv < 0.75 ? [185,110,249] :
-                                      [216,164,255];
-
+          const hue     = rv < 0.45 ? [255,255,255] : rv < 0.75 ? [185,110,249] : [216,164,255];
           particles.push({
-            x: bx + (Math.random() - 0.5) * 4,
-            y: by + (Math.random() - 0.5) * 4,
-            vx: Math.cos(baseAng) * speed,
-            vy: Math.sin(baseAng) * speed,
-            size, hue,
-            alpha: 1,
-            life: 1,
-            decay: Math.random() * 0.008 + 0.004,
-            trail: []
+            x: bx + (Math.random()-0.5)*4, y: by + (Math.random()-0.5)*4,
+            vx: Math.cos(baseAng)*speed, vy: Math.sin(baseAng)*speed,
+            size, hue, alpha: 1, life: 1, decay: Math.random()*0.008+0.004, trail: []
           });
         }
       }
-
-      // Gold sparks — same blade-line origin, bit faster
-      for (let b = 0; b < 40; b++) {
+      // Gold sparks
+      for (let b = 0; b < 50; b++) {
         const t  = Math.random();
-        const bx = lerp(sx0, sx1, t);
-        const by = lerp(sy0, sy1, t);
-        const side   = Math.random() < 0.5 ? 1 : -1;
-        const spread = (Math.random() - 0.5) * 0.4;
-        const ang    = perpAngle + side * Math.PI / 2 + spread;
-        const speed  = Math.random() * 30 + 15;
-
+        const bx = lerp(sx0, sx1, t), by = lerp(sy0, sy1, t);
+        const side = Math.random() < 0.5 ? 1 : -1;
+        const ang  = perpAngle + side * Math.PI / 2 + (Math.random()-0.5)*0.4;
+        const spd  = Math.random() * 30 + 15;
         particles.push({
-          x: bx, y: by,
-          vx: Math.cos(ang) * speed,
-          vy: Math.sin(ang) * speed,
-          size: Math.random() * 1.2 + 0.4,
-          hue: [226,192,128],
-          alpha: 1, life: 1,
-          decay: Math.random() * 0.006 + 0.003,
-          trail: []
+          x: bx, y: by, vx: Math.cos(ang)*spd, vy: Math.sin(ang)*spd,
+          size: Math.random()*1.2+0.4, hue: [226,192,128],
+          alpha: 1, life: 1, decay: Math.random()*0.006+0.003, trail: []
         });
       }
 
       function particleTick() {
         ctx.clearRect(0, 0, W, H);
         let alive = 0;
-
         for (const p of particles) {
           if (p.life <= 0) continue;
           alive++;
-
           p.trail.push({ x: p.x, y: p.y });
           if (p.trail.length > 10) p.trail.shift();
-
-          // Streak trail
           if (p.trail.length > 1) {
             for (let t = 0; t < p.trail.length - 1; t++) {
               const frac = t / p.trail.length;
               ctx.beginPath();
-              ctx.strokeStyle = `rgba(${p.hue[0]},${p.hue[1]},${p.hue[2]},${frac * p.alpha * 0.5})`;
+              ctx.strokeStyle = `rgba(${p.hue[0]},${p.hue[1]},${p.hue[2]},${frac*p.alpha*0.5})`;
               ctx.lineWidth = p.size * frac;
               ctx.moveTo(p.trail[t].x, p.trail[t].y);
               ctx.lineTo(p.trail[t+1].x, p.trail[t+1].y);
               ctx.stroke();
             }
           }
-
           ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
           ctx.fillStyle = `rgba(${p.hue[0]},${p.hue[1]},${p.hue[2]},${p.alpha})`;
           ctx.shadowBlur = 14;
           ctx.shadowColor = `rgba(${p.hue[0]},${p.hue[1]},${p.hue[2]},0.9)`;
           ctx.fill();
           ctx.shadowBlur = 0;
-
-          // No gravity — pure linear
-          p.x += p.vx;
-          p.y += p.vy;
+          p.x += p.vx; p.y += p.vy;
           p.life -= p.decay;
           p.alpha = Math.max(0, p.life);
         }
-
         if (alive > 0) requestAnimationFrame(particleTick);
         else { canvas.style.transition = 'opacity 0.4s ease'; canvas.style.opacity = '0'; }
       }
       requestAnimationFrame(particleTick);
 
-      // Name reveal after burst fires
       setTimeout(() => revealName(nameEl, barTop, barBot), 600);
     }
+    // MAIN CRACK PATH (diagonal, jagged)
+    const mainCrack = [];
+    const CRACK_POINTS = 40;
 
+    for (let i = 0; i <= CRACK_POINTS; i++) {
+      const t = i / CRACK_POINTS;
+
+      const baseX = lerp(sx0, sx1, t);
+      const baseY = lerp(sy0, sy1, t);
+
+      // perpendicular jitter for jagged look
+      const offset = (Math.random() - 0.5) * 60;
+
+      const x = baseX + Math.cos(perpAngle) * offset;
+      const y = baseY + Math.sin(perpAngle) * offset;
+
+      mainCrack.push({ x, y });
+    }
     function revealName(nameEl, barTop, barBot) {
       nameEl.style.opacity = '1';
       barTop.style.transition = 'width 0.55s ease';
       barTop.style.width = '260px';
-      setTimeout(() => {
-        barBot.style.transition = 'width 0.55s ease';
-        barBot.style.width = '260px';
-      }, 160);
+      setTimeout(() => { barBot.style.transition = 'width 0.55s ease'; barBot.style.width = '260px'; }, 160);
 
       const h2 = nameEl.querySelector('h2');
-      h2.style.opacity = '0';
-      h2.style.filter = 'blur(10px)';
+      h2.style.opacity = '0'; h2.style.filter = 'blur(10px)';
       let flicks = 0;
       const flicker = setInterval(() => {
         h2.style.transition = 'opacity 0.04s, filter 0.5s ease';
-        h2.style.opacity = flicks % 2 === 0 ? '1' : '0.05';
-        h2.style.filter = flicks % 2 === 0 ? 'blur(0px)' : 'blur(6px)';
+        h2.style.opacity    = flicks % 2 === 0 ? '1' : '0.05';
+        h2.style.filter     = flicks % 2 === 0 ? 'blur(0px)' : 'blur(6px)';
         flicks++;
         if (flicks >= 7) { clearInterval(flicker); h2.style.opacity = '1'; h2.style.filter = 'blur(0)'; }
       }, 70);
@@ -990,12 +1122,16 @@
       }, 750);
     }
 
-  }, 4900);
+  }, 4600);
 
-  // ── HIDE INTRO ──
+  // ── HIDE INTRO + UNLOCK SCROLL ──
   setTimeout(() => {
     const intro = document.getElementById('intro');
-    if (intro) { intro.style.transition = 'opacity 0.8s ease'; intro.style.opacity = '0'; setTimeout(() => { intro.style.display = 'none'; }, 800); }
+    if (intro) {
+      intro.style.transition = 'opacity 0.8s ease';
+      intro.style.opacity = '0';
+      setTimeout(() => { intro.style.display = 'none'; unlockScroll(); }, 800);
+    }
   }, 9000);
 
   // ── AMBIENT PARTICLES ──
