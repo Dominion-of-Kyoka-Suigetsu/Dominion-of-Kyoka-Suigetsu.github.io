@@ -553,7 +553,7 @@ function runSlash() {
     var cy  = ty + (Math.random() - 0.5) * 30;
     var pts = [{ x: cx, y: cy }];
     var px = cx, py = cy;
-    var segs = Math.floor(Math.random() * 3) + 2;
+    var segs = 7 + Math.floor(Math.random() * 4);
     for (var i = 0; i < segs; i++) {
       var jitter = (Math.random() - 0.5) * 0.8;
       var slen   = len / segs;
@@ -582,7 +582,6 @@ function runSlash() {
     ctx.moveTo(cr.pts[0].x, cr.pts[0].y);
     for (var p = 1; p < cr.pts.length; p++) ctx.lineTo(cr.pts[p].x, cr.pts[p].y);
     ctx.strokeStyle = 'rgba(80,0,120,' + (0.45*fade) + ')';
-    ctx.lineWidth = 6; ctx.filter = 'blur(2px)';
     ctx.stroke();
     ctx.restore();
   }
@@ -607,10 +606,10 @@ function runSlash() {
       ctx.save();
       ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y);
       ctx.strokeStyle = 'rgba(255,255,255,' + (0.08*fade) + ')';
-      ctx.lineWidth = 90; ctx.lineCap = 'round'; ctx.filter = 'blur(18px)'; ctx.stroke();
+      ctx.lineWidth = 90; ctx.lineCap = 'round'; ctx.stroke();
       ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y);
       ctx.strokeStyle = 'rgba(255,255,255,' + (0.45*fade) + ')';
-      ctx.lineWidth = 28; ctx.filter = 'blur(6px)'; ctx.stroke();
+      ctx.lineWidth = 28; ctx.stroke();
       ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y);
       ctx.strokeStyle = 'rgba(255,255,255,' + fade + ')';
       ctx.lineWidth = 8; ctx.filter = 'none'; ctx.stroke();
@@ -634,7 +633,7 @@ function runSlash() {
       g.addColorStop(0.4, 'rgba(220,200,255,0.7)');
       g.addColorStop(1,   'rgba(185,110,249,0)');
       ctx.beginPath(); ctx.arc(tipX,tipY,22,0,Math.PI*2);
-      ctx.fillStyle = g; ctx.filter = 'blur(1px)'; ctx.fill();
+      ctx.fillStyle = g; ctx.fill();
       ctx.restore();
     }
 
@@ -692,147 +691,132 @@ function runSlash() {
   // interacts with its neighbors rather than shooting in one straight direction.
   setTimeout(function() { fireScreenCracks(); }, SLASH_MS + 60);
 
-  function fireScreenCracks() {
-    var ROOT_COUNT = 10; // roots per side along the blade
-    var REACH = Math.max(W, H) * 1.1;
+    function fireScreenCracks() {
+    var ROOT_COUNT = 9; // reduced from 10
+    var REACH = Math.max(W, H) * 0.9;
 
-    // Build one crack tree from (rx,ry) on the given side of the blade.
-    // baseDir is the general perpendicular direction for that side,
-    // but each branch wanders freely with angular drift and sub-branches
-    // that spread at wider angles — making it feel like fracturing glass.
+    var crackPaths = [];
+
     function buildCrack(rx, ry, baseDir) {
-      var branches = [];
+        function makeBranch(x, y, angle, len, depth) {
+        var pts = [];
+        pts.push({ x: x, y: y });
 
-      function buildBranch(bx, by, angle, length, tStart, tEnd, depth) {
-        var pts    = [{ x: bx, y: by, t: tStart }];
-        var segs   = 8 + Math.floor(Math.random() * 5);
-        var cx = bx, cy = by;
-        var curAngle = angle;
+        var segs = 5 + Math.floor(Math.random() * 3);
 
-        for (var i = 1; i <= segs; i++) {
-          var frac = i / segs;
-          var t    = tStart + frac * (tEnd - tStart);
+        var cx = x;
+        var cy = y;
+        var a = angle;
 
-          // Angular drift — wanders freely, more drift at lower depths
-          // This is what makes cracks look organic instead of straight
-          var driftRange = (0.45 + Math.random() * 0.35) * (1 / (depth + 1));
-          curAngle += (Math.random() - 0.5) * 2 * driftRange;
+        for (var i = 0; i < segs; i++) {
+            a += (Math.random() - 0.5) * 0.8;
 
-          // Occasional sharper turn (crack changing direction)
-          if (Math.random() < 0.15) curAngle += (Math.random() - 0.5) * 0.9;
+            var step = len / segs;
 
-          var segLen = (length / segs) * (0.7 + Math.random() * 0.6);
-          cx += Math.cos(curAngle) * segLen;
-          cy += Math.sin(curAngle) * segLen;
-          pts.push({ x: cx, y: cy, t: t });
+            cx += Math.cos(a) * step;
+            cy += Math.sin(a) * step;
 
-          // Sub-branches: spread at various angles, not just perpendicular
-          // depth 0 can have 2 branches, depth 1 can have 1, depth 2 none
-          if (depth < 2 && i > 1 && i < segs) {
-            var branchChance = depth === 0 ? 0.4 : 0.25;
-            if (Math.random() < branchChance) {
-              // Branch angle: anywhere from 30° to 120° off current direction
-              var side      = Math.random() > 0.5 ? 1 : -1;
-              var forkAng   = curAngle + side * (0.5 + Math.random() * 1.1);
-              var forkLen   = length * (0.2 + Math.random() * 0.45);
-              buildBranch(cx, cy, forkAng, forkLen, t, tEnd, depth + 1);
+            pts.push({ x: cx, y: cy });
+
+            // lighter branching
+            if (depth < 1 && Math.random() < 0.4) {
+            makeBranch(
+                cx,
+                cy,
+                a + (Math.random() > 0.5 ? 0.8 : -0.8),
+                len * 0.45,
+                depth + 1
+            );
             }
-            // Occasionally a second branch at depth 0
-            if (depth === 0 && Math.random() < 0.18) {
-              var side2     = Math.random() > 0.5 ? 1 : -1;
-              var forkAng2  = curAngle + side2 * (0.3 + Math.random() * 0.8);
-              var forkLen2  = length * (0.15 + Math.random() * 0.3);
-              buildBranch(cx, cy, forkAng2, forkLen2, t, tEnd, depth + 1);
-            }
-          }
         }
-        branches.push(pts);
-      }
 
-      // Start each root with a slightly varied direction so neighboring cracks
-      // naturally fan out and interact rather than being parallel
-      var fanSpread = 0.1; // how much roots vary from the base perpendicular
-      var startAngle = baseDir + (Math.random() - 0.5) * fanSpread;
-      var rootLen    = REACH * (0.6 + Math.random() * 0.5);
-      buildBranch(rx, ry, startAngle, rootLen, 0, 1, 0);
-      return branches;
+        crackPaths.push(pts);
+        }
+
+        makeBranch(
+        rx,
+        ry,
+        baseDir + (Math.random() - 0.5) * 0.15,
+        REACH * (0.45 + Math.random() * 0.25),
+        0
+        );
     }
 
-    // Plant roots along the slash, ONE side only per side array
-    // Side A = perpendicular "upper-left" of slash
-    // Side B = perpendicular "lower-right" of slash
-    // Each side's cracks spread freely on their own half of the screen
-    var sideA = [], sideB = [];
+    // Generate once only
     for (var r = 0; r < ROOT_COUNT; r++) {
-      var t  = r / (ROOT_COUNT - 1);
-      var rx = lerp(sx0, sx1, t);
-      var ry = lerp(sy0, sy1, t);
-      // Stagger: earlier roots along the blade fire slightly sooner
-      var tOff = (r / ROOT_COUNT) * 0.3;
-      sideA.push({ tree: buildCrack(rx, ry, perpAngle),              tOffset: tOff });
-      sideB.push({ tree: buildCrack(rx, ry, perpAngle + Math.PI),    tOffset: tOff });
+        var t = r / (ROOT_COUNT - 1);
+
+        var rx = lerp(sx0, sx1, t);
+        var ry = lerp(sy0, sy1, t);
+
+        buildCrack(rx, ry, perpAngle);
+        buildCrack(rx, ry, perpAngle + Math.PI);
     }
-    var allTrees = sideA.concat(sideB);
 
-    var GROW_MS    = CRACK_TOTAL_MS * 0.3;
-    var HOLD_MS    = CRACK_TOTAL_MS * 0.4;
-    var FADE_MS    = CRACK_TOTAL_MS * 0.90;
-    var crackStart = performance.now();
+    var start = performance.now();
 
-    function drawBranches(branches, progress, alpha) {
-      for (var b = 0; b < branches.length; b++) {
-        var branch = branches[b];
-        var vis = [];
-        for (var p = 0; p < branch.length; p++) {
-          if (branch[p].t <= progress) vis.push(branch[p]);
+    function render(now) {
+        var elapsed = now - start;
+
+        var progress = Math.min(elapsed / 350, 1);
+
+        var alpha = 1;
+
+        if (elapsed > 700) {
+        alpha = 1 - Math.min((elapsed - 700) / 500, 1);
         }
-        if (vis.length < 2) continue;
-        var lastIdx = branch.indexOf(vis[vis.length - 1]);
-        if (lastIdx + 1 < branch.length) {
-          var nxt  = branch[lastIdx + 1];
-          var dT   = nxt.t - vis[vis.length-1].t;
-          var segT = dT > 0 ? (progress - vis[vis.length-1].t) / dT : 1;
-          vis = vis.concat([{ x: lerp(vis[vis.length-1].x, nxt.x, segT), y: lerp(vis[vis.length-1].y, nxt.y, segT) }]);
+
+        cCtx.clearRect(0, 0, W, H);
+
+        cCtx.lineCap = 'round';
+        cCtx.lineJoin = 'round';
+
+        for (var i = 0; i < crackPaths.length; i++) {
+        var pts = crackPaths[i];
+
+        var visible = Math.floor((pts.length - 1) * progress) + 1;
+
+        // Glow layer (cheap)
+        cCtx.beginPath();
+        cCtx.moveTo(pts[0].x, pts[0].y);
+
+        for (var j = 1; j < visible; j++) {
+            cCtx.lineTo(pts[j].x, pts[j].y);
         }
-        cCtx.save();
-        cCtx.beginPath(); cCtx.moveTo(vis[0].x, vis[0].y);
-        for (var v = 1; v < vis.length; v++) cCtx.lineTo(vis[v].x, vis[v].y);
-        cCtx.strokeStyle = 'rgba(255,255,255,' + (0.6*alpha) + ')';
-        cCtx.lineWidth = 4; cCtx.lineCap = 'round'; cCtx.lineJoin = 'round'; cCtx.filter = 'blur(3px)'; cCtx.stroke();
-        cCtx.beginPath(); cCtx.moveTo(vis[0].x, vis[0].y);
-        for (var v = 1; v < vis.length; v++) cCtx.lineTo(vis[v].x, vis[v].y);
-        cCtx.strokeStyle = 'rgba(200,180,255,' + (0.18*alpha) + ')';
-        cCtx.lineWidth = 12; cCtx.filter = 'blur(7px)'; cCtx.stroke();
-        cCtx.beginPath(); cCtx.moveTo(vis[0].x, vis[0].y);
-        for (var v = 1; v < vis.length; v++) cCtx.lineTo(vis[v].x, vis[v].y);
+
+        cCtx.strokeStyle = 'rgba(180,140,255,' + (0.18 * alpha) + ')';
+        cCtx.lineWidth = 6;
+        cCtx.stroke();
+
+        // Core crack
+        cCtx.beginPath();
+        cCtx.moveTo(pts[0].x, pts[0].y);
+
+        for (var j = 1; j < visible; j++) {
+            cCtx.lineTo(pts[j].x, pts[j].y);
+        }
+
         cCtx.strokeStyle = 'rgba(0,0,0,' + alpha + ')';
-        cCtx.lineWidth = 2; cCtx.lineCap = 'round'; cCtx.lineJoin = 'round'; cCtx.filter = 'none'; cCtx.stroke();
-        cCtx.restore();
-      }
+        cCtx.lineWidth = 1.4;
+        cCtx.stroke();
+        }
+
+        if (alpha > 0) {
+        requestAnimationFrame(render);
+        } else {
+        cCtx.clearRect(0, 0, W, H);
+        }
     }
 
-    (function crackTick(now) {
-      cCtx.clearRect(0, 0, W, H);
-      var elapsed = now - crackStart;
-      var fadeT   = elapsed > (GROW_MS + HOLD_MS)
-        ? Math.min((elapsed - GROW_MS - HOLD_MS) / FADE_MS, 1) : 0;
-      var alpha   = 1 - fadeT;
-      if (alpha <= 0) { cCtx.clearRect(0, 0, W, H); return; }
-      for (var i = 0; i < allTrees.length; i++) {
-        var item   = allTrees[i];
-        var localT = Math.max(0, Math.min((elapsed / GROW_MS) - item.tOffset, 1));
-        drawBranches(item.tree, localT, alpha);
-      }
-      requestAnimationFrame(crackTick);
-    }(performance.now()));
-  }
+    requestAnimationFrame(render);
+    }
 
   // ── PARTICLES ──
   setTimeout(function() { fireParticles(); }, SLASH_MS + 100);
 
   function fireParticles() {
     canvas.width = W; canvas.height = H;
-    var BLADE_PTS = 30, PER = 2;
+    var BLADE_PTS = 18, PER = 2;
 
     for (var b = 0; b < BLADE_PTS; b++) {
       var t  = b / (BLADE_PTS - 1);
